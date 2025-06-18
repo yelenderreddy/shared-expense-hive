@@ -5,22 +5,35 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
-import { ArrowLeft, CreditCard } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { createTrip } from "@/lib/database";
+import { ArrowLeft, CreditCard, Save } from "lucide-react";
 
 const SetupFund = () => {
   const [participants, setParticipants] = useState<string[]>([]);
+  const [tripName, setTripName] = useState<string>("");
   const [contributions, setContributions] = useState<{ [key: string]: number }>({});
+  const [loading, setLoading] = useState(false);
+  const { user } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
     const storedParticipants = localStorage.getItem("tripParticipants");
+    const storedTripData = localStorage.getItem("tripFundData");
+    
     if (!storedParticipants) {
-      navigate("/add-members");
+      navigate("/trips");
       return;
     }
     
     const parsedParticipants = JSON.parse(storedParticipants);
     setParticipants(parsedParticipants);
+    
+    // Get trip name from stored data
+    if (storedTripData) {
+      const tripData = JSON.parse(storedTripData);
+      setTripName(tripData.name || "");
+    }
     
     // Initialize contributions
     const initialContributions: { [key: string]: number } = {};
@@ -42,7 +55,7 @@ const SetupFund = () => {
     return Object.values(contributions).reduce((sum, amount) => sum + amount, 0);
   };
 
-  const handleSubmit = () => {
+  const handleSaveFund = () => {
     const totalPooled = getTotalPooled();
     
     if (totalPooled <= 0) {
@@ -67,10 +80,72 @@ const SetupFund = () => {
     
     toast({
       title: "Success!",
-      description: `Pooled fund of ₹${totalPooled.toLocaleString()} created`,
+      description: `Fund data saved. Total pooled: ₹${totalPooled.toLocaleString()}`,
     });
+  };
 
-    navigate("/dashboard");
+  const handleCreateTrip = async () => {
+    if (!user) {
+      toast({
+        title: "Error",
+        description: "Please sign in to create a trip",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const totalPooled = getTotalPooled();
+    
+    if (totalPooled <= 0) {
+      toast({
+        title: "Error",
+        description: "Total pooled amount must be greater than 0",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const tripData = {
+        user_id: user.id,
+        name: tripName,
+        participants: participants,
+        contributions: contributions,
+        total_pooled: totalPooled,
+      };
+
+      const { data, error } = await createTrip(tripData);
+      
+      if (error) {
+        toast({
+          title: "Error",
+          description: `Failed to create trip: ${error.message}`,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Success!",
+          description: `Trip "${tripName}" created successfully with ₹${totalPooled.toLocaleString()} pooled fund`,
+        });
+
+        // Clear localStorage
+        localStorage.removeItem("tripParticipants");
+        localStorage.removeItem("tripFundData");
+
+        // Navigate to the new trip dashboard
+        navigate(`/trip/${data.id}`);
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to create trip",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (participants.length === 0) {
@@ -85,9 +160,9 @@ const SetupFund = () => {
     <div className="min-h-screen netflix-gradient">
       <div className="responsive-container py-6 sm:py-8">
         <div className="mb-6 animate-fade-in">
-          <Link to="/add-members" className="text-white hover:text-red-400 flex items-center gap-2 text-sm sm:text-base transition-colors">
+          <Link to="/trips" className="text-white hover:text-red-400 flex items-center gap-2 text-sm sm:text-base transition-colors">
             <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5" />
-            Back to Members
+            Back to Trips
           </Link>
         </div>
 
@@ -97,9 +172,9 @@ const SetupFund = () => {
               <div className="bg-red-600/20 rounded-full p-3 w-16 h-16 mx-auto mb-4 flex items-center justify-center">
                 <CreditCard className="h-8 w-8 text-red-400" />
               </div>
-              <CardTitle className="text-white text-responsive-lg sm:text-2xl md:text-3xl">Setup Initial Fund</CardTitle>
+              <CardTitle className="text-white text-responsive-lg sm:text-2xl md:text-3xl">Setup Trip Fund</CardTitle>
               <CardDescription className="text-gray-300 text-sm sm:text-base">
-                Enter the amount each person contributed to the trip fund
+                {tripName && `Setting up fund for: ${tripName}`}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -137,15 +212,27 @@ const SetupFund = () => {
                 </CardContent>
               </Card>
 
-              <Button 
-                onClick={handleSubmit}
-                variant="netflix"
-                size="lg"
-                className="w-full text-responsive font-semibold"
-                disabled={getTotalPooled() <= 0}
-              >
-                Create Trip Fund & Continue
-              </Button>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <Button 
+                  onClick={handleSaveFund}
+                  variant="netflix-secondary"
+                  size="lg"
+                  className="flex-1 text-responsive font-semibold flex items-center gap-2"
+                  disabled={getTotalPooled() <= 0}
+                >
+                  <Save className="h-5 w-5" />
+                  Save Fund Data
+                </Button>
+                <Button 
+                  onClick={handleCreateTrip}
+                  variant="netflix"
+                  size="lg"
+                  className="flex-1 text-responsive font-semibold"
+                  disabled={getTotalPooled() <= 0 || loading}
+                >
+                  {loading ? "Creating Trip..." : "Create Trip"}
+                </Button>
+              </div>
             </CardContent>
           </Card>
         </div>

@@ -579,7 +579,7 @@ const Dashboard = () => {
                     value={newExpense.amount}
                     onChange={(e) => setNewExpense(prev => ({ ...prev, amount: e.target.value }))}
                     placeholder="0.00"
-                    className="pl-8 bg-gray-800 border-gray-600 text-white placeholder-gray-400 focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                    className="pl-8 bg-gray-800 border-gray-600 text-white placeholder-gray-400 focus:ring-2 focus:ring-red-500 focus:border-transparent [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
                   />
                 </div>
               </div>
