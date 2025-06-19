@@ -7,13 +7,15 @@ import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { createTrip } from "@/lib/database";
-import { ArrowLeft, CreditCard, Save } from "lucide-react";
+import { ArrowLeft, CreditCard, Save, Users, Calculator } from "lucide-react";
 
 const SetupFund = () => {
   const [participants, setParticipants] = useState<string[]>([]);
   const [tripName, setTripName] = useState<string>("");
   const [contributions, setContributions] = useState<{ [key: string]: number }>({});
   const [loading, setLoading] = useState(false);
+  const [useEqualDivision, setUseEqualDivision] = useState(false);
+  const [totalAmount, setTotalAmount] = useState<string>("");
   const { user } = useAuth();
   const navigate = useNavigate();
 
@@ -51,8 +53,29 @@ const SetupFund = () => {
     }));
   };
 
+  const handleTotalAmountChange = (amount: string) => {
+    setTotalAmount(amount);
+    const numAmount = parseFloat(amount) || 0;
+    
+    if (numAmount > 0 && participants.length > 0) {
+      const equalShare = numAmount / participants.length;
+      const newContributions: { [key: string]: number } = {};
+      
+      participants.forEach((name) => {
+        newContributions[name] = equalShare;
+      });
+      
+      setContributions(newContributions);
+    }
+  };
+
   const getTotalPooled = () => {
     return Object.values(contributions).reduce((sum, amount) => sum + amount, 0);
+  };
+
+  const getEqualShare = () => {
+    const total = parseFloat(totalAmount) || 0;
+    return participants.length > 0 ? total / participants.length : 0;
   };
 
   const handleSaveFund = () => {
@@ -178,28 +201,106 @@ const SetupFund = () => {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="space-y-4 max-h-96 overflow-y-auto pr-2">
-                {participants.map((name, index) => (
-                  <div key={name} className="animate-fade-in" style={{ animationDelay: `${index * 0.1}s` }}>
-                    <Label htmlFor={`contribution-${name}`} className="text-white font-medium text-sm sm:text-base">
-                      Enter amount contributed by {name}:
+              {/* Mode Selection */}
+              <div className="flex gap-2 p-1 bg-gray-800 rounded-lg">
+                <Button
+                  type="button"
+                  variant={!useEqualDivision ? "netflix" : "ghost"}
+                  size="sm"
+                  className="flex-1 text-sm"
+                  onClick={() => setUseEqualDivision(false)}
+                >
+                  <Users className="h-4 w-4 mr-2" />
+                  Individual
+                </Button>
+                <Button
+                  type="button"
+                  variant={useEqualDivision ? "netflix" : "ghost"}
+                  size="sm"
+                  className="flex-1 text-sm"
+                  onClick={() => setUseEqualDivision(true)}
+                >
+                  <Calculator className="h-4 w-4 mr-2" />
+                  Equal Division
+                </Button>
+              </div>
+
+              {useEqualDivision ? (
+                /* Equal Division Mode */
+                <div className="space-y-4 animate-fade-in">
+                  <div>
+                    <Label htmlFor="total-amount" className="text-white font-medium text-sm sm:text-base">
+                      Enter total amount to be divided equally:
                     </Label>
                     <div className="relative mt-2">
                       <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-base">₹</span>
                       <Input
-                        id={`contribution-${name}`}
+                        id="total-amount"
                         type="number"
                         min="0"
                         step="0.01"
-                        value={contributions[name] || ""}
-                        onChange={(e) => handleContributionChange(name, e.target.value)}
+                        value={totalAmount}
+                        onChange={(e) => handleTotalAmountChange(e.target.value)}
                         placeholder="0.00"
                         className="pl-8 bg-gray-800 border-gray-600 text-white placeholder-gray-400 text-base h-12 rounded-md focus:ring-2 focus:ring-red-500 focus:border-transparent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                       />
                     </div>
                   </div>
-                ))}
-              </div>
+
+                  {parseFloat(totalAmount) > 0 && (
+                    <Card className="netflix-card border-gray-600">
+                      <CardContent className="pt-4">
+                        <div className="text-center space-y-2">
+                          <p className="text-white font-medium text-sm">Equal share per person:</p>
+                          <p className="text-xl font-bold text-red-400">
+                            ₹{getEqualShare().toLocaleString()}
+                          </p>
+                          <p className="text-gray-300 text-xs">
+                            {participants.length} participants
+                          </p>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  <div className="space-y-3 max-h-64 overflow-y-auto pr-2">
+                    {participants.map((name, index) => (
+                      <div key={name} className="animate-fade-in" style={{ animationDelay: `${index * 0.05}s` }}>
+                        <div className="flex justify-between items-center p-3 bg-gray-800/50 rounded-lg">
+                          <span className="text-white font-medium text-sm">{name}</span>
+                          <span className="text-red-400 font-semibold">
+                            ₹{getEqualShare().toLocaleString()}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                /* Individual Contributions Mode */
+                <div className="space-y-4 max-h-96 overflow-y-auto pr-2">
+                  {participants.map((name, index) => (
+                    <div key={name} className="animate-fade-in" style={{ animationDelay: `${index * 0.1}s` }}>
+                      <Label htmlFor={`contribution-${name}`} className="text-white font-medium text-sm sm:text-base">
+                        Enter amount contributed by {name}:
+                      </Label>
+                      <div className="relative mt-2">
+                        <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-base">₹</span>
+                        <Input
+                          id={`contribution-${name}`}
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          value={contributions[name] || ""}
+                          onChange={(e) => handleContributionChange(name, e.target.value)}
+                          placeholder="0.00"
+                          className="pl-8 bg-gray-800 border-gray-600 text-white placeholder-gray-400 text-base h-12 rounded-md focus:ring-2 focus:ring-red-500 focus:border-transparent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
 
               <Card className="netflix-card border-gray-600 animate-fade-in" style={{ animationDelay: '0.5s' }}>
                 <CardContent className="pt-6">
