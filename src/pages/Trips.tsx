@@ -194,6 +194,8 @@ const Trips = () => {
     }
   };
 
+  console.log('viewedTrips:', viewedTrips);
+
   if (loading) {
     return (
       <div className="min-h-screen netflix-gradient flex items-center justify-center">
@@ -204,29 +206,29 @@ const Trips = () => {
 
   return (
     <div className="min-h-screen netflix-gradient">
-      <div className="responsive-container py-6 sm:py-8">
-        <div className="mb-6 animate-fade-in">
+      <div className="responsive-container py-4 sm:py-6 md:py-8">
+        <div className="mb-4 sm:mb-6 animate-fade-in">
           <Link to="/" className="text-white hover:text-red-400 flex items-center gap-2 text-sm sm:text-base transition-colors">
             <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5" />
             Back to Home
           </Link>
         </div>
 
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-white text-3xl font-bold">My Trips</h1>
-          <div className="flex gap-2">
-          <Button
-            onClick={() => setShowCreateForm(true)}
-            variant="netflix"
-            className="flex items-center gap-2"
-          >
-            <Plus className="h-4 w-4" />
-            New Trip
-          </Button>
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 gap-4 sm:gap-2 flex-wrap">
+          <h1 className="text-white text-2xl sm:text-3xl font-bold">My Trips</h1>
+          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto flex-wrap">
+            <Button
+              onClick={() => setShowCreateForm(true)}
+              variant="netflix"
+              className="flex items-center gap-2 w-full sm:w-auto min-w-0"
+            >
+              <Plus className="h-4 w-4" />
+              New Trip
+            </Button>
             <Button
               onClick={() => setShowJoinInput((v) => !v)}
               variant="netflix-secondary"
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 w-full sm:w-auto min-w-0"
             >
               Join Trip by Link
             </Button>
@@ -234,14 +236,14 @@ const Trips = () => {
         </div>
 
         {showJoinInput && (
-          <div className="mb-8 flex gap-2 items-center">
+          <div className="mb-6 flex flex-col sm:flex-row gap-2 items-center w-full max-w-full">
             <Input
               value={joinLink}
               onChange={e => setJoinLink(e.target.value)}
               placeholder="Paste shared trip link here"
-              className="bg-gray-800 border-gray-600 text-white placeholder-gray-400 flex-1"
+              className="bg-gray-800 border-gray-600 text-white placeholder-gray-400 flex-1 w-full sm:w-auto min-w-0"
             />
-            <Button onClick={handleJoinTrip} variant="netflix">
+            <Button onClick={handleJoinTrip} variant="netflix" className="w-full sm:w-auto min-w-0">
               Join
             </Button>
           </div>
@@ -263,25 +265,24 @@ const Trips = () => {
                   value={newTrip.name}
                   onChange={(e) => setNewTrip(prev => ({ ...prev, name: e.target.value }))}
                   placeholder="e.g., Goa Trip 2024, Family Vacation"
-                  className="mt-2 bg-gray-800 border-gray-600 text-white placeholder-gray-400"
+                  className="mt-2 bg-gray-800 border-gray-600 text-white placeholder-gray-400 w-full"
                 />
               </div>
 
               <div>
                 <Label className="text-white">Participants</Label>
-                <div className="flex gap-2 mt-2">
+                <div className="flex gap-2 mt-2 flex-col sm:flex-row flex-wrap w-full">
                   <Input
                     value={newTrip.participantInput}
                     onChange={(e) => setNewTrip(prev => ({ ...prev, participantInput: e.target.value }))}
                     placeholder="Enter participant name"
-                    className="flex-1 bg-gray-800 border-gray-600 text-white placeholder-gray-400"
+                    className="flex-1 bg-gray-800 border-gray-600 text-white placeholder-gray-400 w-full sm:w-auto min-w-0"
                     onKeyPress={(e) => e.key === 'Enter' && handleAddParticipant()}
                   />
-                  <Button onClick={handleAddParticipant} variant="netflix-secondary">
+                  <Button onClick={handleAddParticipant} variant="netflix-secondary" className="w-full sm:w-auto min-w-0">
                     Add
                   </Button>
                 </div>
-                
                 {newTrip.participants.length > 0 && (
                   <div className="mt-3 flex flex-wrap gap-2">
                     {newTrip.participants.map((participant, index) => (
@@ -302,11 +303,11 @@ const Trips = () => {
                 )}
               </div>
 
-              <div className="flex gap-3">
+              <div className="flex flex-col sm:flex-row gap-3 w-full flex-wrap">
                 <Button
                   onClick={handleCreateTrip}
                   variant="netflix"
-                  className="flex-1"
+                  className="flex-1 w-full sm:w-auto min-w-0"
                 >
                   Create Trip
                 </Button>
@@ -316,7 +317,7 @@ const Trips = () => {
                     setNewTrip({ name: "", participants: [], participantInput: "" });
                   }}
                   variant="netflix-secondary"
-                  className="flex-1"
+                  className="flex-1 w-full sm:w-auto min-w-0"
                 >
                   Cancel
                 </Button>
@@ -334,7 +335,7 @@ const Trips = () => {
               <Button
                 onClick={() => setShowCreateForm(true)}
                 variant="netflix"
-                className="flex items-center gap-2 mx-auto"
+                className="flex items-center gap-2 mx-auto w-full sm:w-auto"
               >
                 <Plus className="h-4 w-4" />
                 Create Your First Trip
@@ -344,22 +345,23 @@ const Trips = () => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {trips.map((trip) => (
-              <Card key={trip.id} className="netflix-card-hover">
+              <Card key={trip.id} className="netflix-card-hover w-full max-w-xs sm:max-w-none overflow-hidden mx-auto">
                 <CardHeader>
-                  <div className="flex justify-between items-start">
+                  <div className="flex justify-between items-start w-full">
                     <div>
                       <CardTitle className="text-white text-lg">{trip.name}</CardTitle>
                       <CardDescription className="text-gray-300">
                         {trip.participants.length} participants
                       </CardDescription>
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex gap-1 flex-wrap min-w-0">
                       <Button
                         variant="netflix-secondary"
                         size="sm"
                         onClick={() => navigate(`/trip/${trip.id}`)}
                         title="Manage Trip"
                         disabled={deletingTripId === trip.id}
+                        className="w-8 h-8 sm:w-auto sm:h-auto"
                       >
                         <Edit className="h-4 w-4" />
                       </Button>
@@ -369,6 +371,7 @@ const Trips = () => {
                         onClick={() => handleDeleteTrip(trip.id, trip.name)}
                         title="Delete Trip"
                         disabled={deletingTripId === trip.id}
+                        className="w-8 h-8 sm:w-auto sm:h-auto"
                       >
                         {deletingTripId === trip.id ? (
                           <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
@@ -406,14 +409,12 @@ const Trips = () => {
         )}
 
         {/* Recently Viewed as Viewer */}
-        {console.log('viewedTrips:', viewedTrips)}
         {viewedTrips.length > 0 && (
           <div className="mt-12">
             <h2 className="text-white text-2xl font-bold mb-4">Trips I Viewed</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {viewedTrips.map((v) => {
                 const trip = v.trip;
-                console.log('trip:', trip);
                 if (!trip) return null;
                 return (
                   <Card key={trip.id} className="netflix-card-hover">

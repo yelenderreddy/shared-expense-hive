@@ -1,7 +1,11 @@
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { VariantProps, cva } from "class-variance-authority"
-import { PanelLeft } from "lucide-react"
+import { PanelLeft, Home } from "lucide-react"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./dialog"
+import { toast } from "@/hooks/use-toast"
+import { useAuth } from "@/contexts/AuthContext"
+import { useNavigate } from "react-router-dom"
 
 import { useIsMobile } from "@/hooks/use-mobile"
 import { cn } from "@/lib/utils"
@@ -190,7 +194,9 @@ const Sidebar = React.forwardRef<
       )
     }
 
+    // Only render the sidebar on mobile if openMobile is true
     if (isMobile) {
+      if (!openMobile) return null;
       return (
         <Sheet open={openMobile} onOpenChange={setOpenMobile} {...props}>
           <SheetContent
@@ -733,6 +739,100 @@ const SidebarMenuSubButton = React.forwardRef<
 })
 SidebarMenuSubButton.displayName = "SidebarMenuSubButton"
 
+const CustomSidebarContent = () => {
+  const { user, signOut, updateProfile } = useAuth();
+  const [showProfileDialog, setShowProfileDialog] = React.useState(false);
+  const [profile, setProfile] = React.useState({
+    name: user?.user_metadata?.display_name || "",
+    mobile: user?.user_metadata?.phone || "",
+  });
+  const [saving, setSaving] = React.useState(false);
+  const [collapsed, setCollapsed] = React.useState(false);
+  const navigate = useNavigate();
+
+  // Handle sidebar collapse/expand
+  const handleToggleSidebar = () => setCollapsed((c) => !c);
+
+  // Save profile to database
+  const handleProfileSave = async () => {
+    setSaving(true);
+    const { error } = await updateProfile(profile);
+    setSaving(false);
+    if (error) {
+      toast({ title: "Error", description: "Failed to update profile", variant: "destructive" });
+    } else {
+      toast({ title: "Profile Updated", description: "Your profile was updated successfully." });
+      setShowProfileDialog(false);
+    }
+  };
+
+  return (
+    <div className={`flex flex-col h-full transition-all duration-300 bg-sidebar text-sidebar-foreground z-10 shadow-lg ${collapsed ? 'w-20' : 'w-64'} md:relative fixed md:static top-0 left-0 min-h-screen overflow-y-auto`}>
+      {/* Collapse/Expand Button */}
+      <button
+        className="p-3 focus:outline-none self-end md:self-auto min-h-[44px] min-w-[44px]"
+        onClick={handleToggleSidebar}
+        aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+      >
+        <PanelLeft className="w-7 h-7 text-gray-400" />
+      </button>
+      {/* Profile Section */}
+      <div className={`flex flex-col items-center mb-8 mt-4 gap-y-2 ${collapsed ? 'hidden' : ''}`}>
+        <div
+          className="w-16 h-16 rounded-full bg-gray-700 flex items-center justify-center text-2xl cursor-pointer"
+          onClick={() => setShowProfileDialog(true)}
+          aria-label="Edit Profile"
+          tabIndex={0}
+        >
+          {user?.user_metadata?.display_name?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || "U"}
+        </div>
+        <div className="mt-2 text-lg font-semibold break-all">{user?.user_metadata?.display_name || "Your Name"}</div>
+        <div className="text-gray-400 text-sm break-all">{user?.email}</div>
+        <Button variant="link" className="mt-2 min-h-[44px] min-w-[44px]" onClick={() => setShowProfileDialog(true)} aria-label="Edit Profile">
+          Edit Profile
+        </Button>
+      </div>
+      {/* Navigation */}
+      <nav className="flex flex-col gap-y-2 flex-1 w-full">
+        <Button variant="ghost" className="justify-start min-h-[44px] min-w-[44px] w-full text-left" onClick={() => navigate("/")} aria-label="Home"> {/* Home Button */}
+          <Home className="mr-2" /> {!collapsed && "Home"}
+        </Button>
+        <Button variant="ghost" className="justify-start min-h-[44px] min-w-[44px] w-full text-left" onClick={() => navigate("/trips") } aria-label="Dashboard"> {/* Dashboard Button */}
+          <PanelLeft className="mr-2" /> {!collapsed && "Dashboard"}
+        </Button>
+      </nav>
+      {/* Actions */}
+      <div className={`flex flex-col gap-y-2 mt-auto mb-4 w-full ${collapsed ? 'items-center' : ''}`}>
+        <Button variant="outline" className="min-h-[44px] min-w-[44px] w-full" onClick={signOut} aria-label="Logout">{!collapsed && "Logout"}</Button>
+        <Button variant="destructive" className="min-h-[44px] min-w-[44px] w-full" onClick={() => {}} aria-label="Delete Account">{!collapsed && "Delete Account"}</Button>
+      </div>
+      {/* Profile Edit Dialog */}
+      <Dialog open={showProfileDialog} onOpenChange={setShowProfileDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Profile</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <Input
+              value={profile.name}
+              onChange={e => setProfile({ ...profile, name: e.target.value })}
+              placeholder="Your Name"
+            />
+            <Input
+              value={profile.mobile}
+              onChange={e => setProfile({ ...profile, mobile: e.target.value })}
+              placeholder="Mobile Number"
+            />
+            <Button onClick={handleProfileSave} className="w-full min-h-[44px]" disabled={saving} aria-label="Save Profile">
+              {saving ? "Saving..." : "Save"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+};
+
 export {
   Sidebar,
   SidebarContent,
@@ -758,4 +858,5 @@ export {
   SidebarSeparator,
   SidebarTrigger,
   useSidebar,
+  CustomSidebarContent,
 }

@@ -17,14 +17,14 @@ const NotFound = () => {
   return (
     <div className="min-h-screen netflix-gradient flex items-center justify-center">
       <div className="text-center animate-fade-in">
-        <div className="netflix-card rounded-2xl p-8 sm:p-12 max-w-md mx-4">
+        <div className="netflix-card rounded-2xl p-8 sm:p-12 max-w-md mx-4 px-2">
           <h1 className="text-6xl sm:text-8xl font-bold text-white mb-4">404</h1>
           <p className="text-responsive text-gray-300 mb-6 sm:mb-8">Oops! Page not found</p>
           <Link to="/">
             <Button 
               variant="netflix" 
               size="lg"
-              className="text-responsive font-semibold"
+              className="text-responsive font-semibold w-full max-w-xs mx-auto"
             >
               <Home className="h-5 w-5 mr-2" />
               Return to Home

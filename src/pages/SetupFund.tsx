@@ -189,7 +189,7 @@ const SetupFund = () => {
           </Link>
         </div>
 
-        <div className="max-w-2xl mx-auto animate-fade-in" style={{ animationDelay: '0.1s' }}>
+        <div className="max-w-2xl mx-auto animate-fade-in w-full px-2 sm:px-0" style={{ animationDelay: '0.1s' }}>
           <Card className="netflix-card">
             <CardHeader className="text-center pb-6">
               <div className="bg-red-600/20 rounded-full p-3 w-16 h-16 mx-auto mb-4 flex items-center justify-center">
@@ -200,7 +200,7 @@ const SetupFund = () => {
                 {tripName && `Setting up fund for: ${tripName}`}
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-6 w-full">
               {/* Mode Selection */}
               <div className="flex gap-2 p-1 bg-gray-800 rounded-lg">
                 <Button
@@ -313,23 +313,20 @@ const SetupFund = () => {
                 </CardContent>
               </Card>
 
-              <div className="flex flex-col sm:flex-row gap-3">
-                <Button 
+              <div className="flex flex-col sm:flex-row gap-3 w-full flex-wrap mt-6">
+                <Button
                   onClick={handleSaveFund}
                   variant="netflix-secondary"
-                  size="lg"
-                  className="flex-1 text-responsive font-semibold flex items-center gap-2"
-                  disabled={getTotalPooled() <= 0}
+                  className="flex-1 w-full sm:w-auto min-w-0"
+                  disabled={loading}
                 >
-                  <Save className="h-5 w-5" />
                   Save Fund Data
                 </Button>
-                <Button 
+                <Button
                   onClick={handleCreateTrip}
                   variant="netflix"
-                  size="lg"
-                  className="flex-1 text-responsive font-semibold"
-                  disabled={getTotalPooled() <= 0 || loading}
+                  className="flex-1 w-full sm:w-auto min-w-0"
+                  disabled={loading}
                 >
                   {loading ? "Creating Trip..." : "Create Trip"}
                 </Button>

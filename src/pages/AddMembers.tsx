@@ -85,7 +85,7 @@ const AddMembers = () => {
           </Link>
         </div>
 
-        <div className="max-w-2xl mx-auto animate-fade-in" style={{ animationDelay: '0.1s' }}>
+        <div className="max-w-2xl mx-auto animate-fade-in w-full px-2 sm:px-0" style={{ animationDelay: '0.1s' }}>
           <Card className="netflix-card">
             <CardHeader className="text-center pb-6">
               <div className="bg-red-600/20 rounded-full p-3 w-16 h-16 mx-auto mb-4 flex items-center justify-center">
@@ -142,11 +142,11 @@ const AddMembers = () => {
                       </div>
                     ))}
                   </div>
-                  <div className="flex flex-col sm:flex-row gap-3 pt-4">
+                  <div className="flex flex-col sm:flex-row gap-3 pt-4 w-full flex-wrap">
                     <Button 
                       variant="netflix-secondary" 
                       onClick={() => setShowNameInputs(false)}
-                      className="flex-1 h-12 text-base"
+                      className="flex-1 h-12 text-base w-full sm:w-auto min-w-0"
                     >
                       Back
                     </Button>
@@ -154,7 +154,7 @@ const AddMembers = () => {
                       onClick={handleSubmit}
                       variant="netflix"
                       size="lg"
-                      className="flex-1 text-responsive font-semibold"
+                      className="flex-1 text-responsive font-semibold w-full sm:w-auto min-w-0"
                     >
                       Continue to Fund Setup
                     </Button>

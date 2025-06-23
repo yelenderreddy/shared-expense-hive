@@ -216,7 +216,7 @@ export const markPaymentAsReceived = async (paymentId: string) => {
     .single()
 
   return { data, error }
-}
+} 
 
 // Trip Viewers functions
 export const addTripViewer = async (tripId: string, userId: string) => {

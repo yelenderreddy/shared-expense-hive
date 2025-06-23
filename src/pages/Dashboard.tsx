@@ -508,28 +508,15 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="min-h-screen netflix-gradient">
-      {/* Sticky Navigation */}
-      <div className="sticky top-0 z-50 netflix-glass border-b border-gray-600">
-        <div className="responsive-container py-4">
-          <div className="flex items-center justify-between mb-4">
-            <Link to="/setup-fund" className="text-white hover:text-red-400 flex items-center gap-2 transition-colors">
-              <ArrowLeft className="h-4 w-4" />
-              Back to Fund Setup
+    <div className="min-h-screen netflix-gradient w-full">
+      <div className="responsive-container py-4 sm:py-6 md:py-8 w-full px-4">
+        <div className="mb-4 sm:mb-6 animate-fade-in">
+          <Link to="/add-members" className="text-white hover:text-red-400 flex items-center gap-2 text-sm sm:text-base transition-colors">
+            <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5" />
+            Back to Add Members
             </Link>
-            <Button 
-              variant="netflix-secondary" 
-              size="sm"
-              onClick={() => {
-                localStorage.clear();
-                navigate("/");
-              }}
-            >
-              Reset Trip
-            </Button>
           </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center mb-6">
             <div className="netflix-card rounded-lg p-3">
               <p className="text-gray-300 text-sm">Trip Fund Balance</p>
               <p className="text-xl font-bold text-green-400">₹{getRemainingFund().toLocaleString()}</p>
@@ -543,14 +530,10 @@ const Dashboard = () => {
               <p className="text-xl font-bold text-blue-400">₹{getTotalDeductedFromFund().toLocaleString()}</p>
             </div>
           </div>
-        </div>
-      </div>
-
-      <div className="responsive-container py-8 space-y-8">
-        {/* Add New Expense */}
-        <Card className="netflix-card">
+        {/* Add Expense Form */}
+        <Card className="netflix-card mb-8">
           <CardHeader>
-            <CardTitle className="text-white flex items-center gap-2">
+            <CardTitle className="text-white flex items-center gap-2 text-lg sm:text-xl">
               <Plus className="h-5 w-5" />
               Add New Expense
             </CardTitle>
@@ -564,7 +547,7 @@ const Dashboard = () => {
                   value={newExpense.title}
                   onChange={(e) => setNewExpense(prev => ({ ...prev, title: e.target.value }))}
                   placeholder="e.g., Hotel, Food, Transport"
-                  className="bg-gray-800 border-gray-600 text-white placeholder-gray-400 focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                  className="bg-gray-800 border-gray-600 text-white placeholder-gray-400 w-full"
                 />
               </div>
               <div>
@@ -579,12 +562,11 @@ const Dashboard = () => {
                     value={newExpense.amount}
                     onChange={(e) => setNewExpense(prev => ({ ...prev, amount: e.target.value }))}
                     placeholder="0.00"
-                    className="pl-8 bg-gray-800 border-gray-600 text-white placeholder-gray-400 focus:ring-2 focus:ring-red-500 focus:border-transparent [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
+                    className="pl-8 bg-gray-800 border-gray-600 text-white placeholder-gray-400 w-full [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
                   />
                 </div>
               </div>
             </div>
-            
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="flex items-center space-x-2">
                 <div
@@ -607,32 +589,30 @@ const Dashboard = () => {
                 </div>
                 <Label htmlFor="deductFromFund" className="text-white font-medium cursor-pointer">Deduct from Pooled Fund</Label>
               </div>
-              
               {(newExpense.deductFromFund && getRemainingFund() < parseFloat(newExpense.amount || "0")) && (
                 <div>
                   <Label htmlFor="paidBy" className="text-white">Who will pay the remaining amount?</Label>
                   <Select value={newExpense.paidBy} onValueChange={(value) => setNewExpense(prev => ({ ...prev, paidBy: value }))}>
-                    <SelectTrigger className="bg-gray-800 border-gray-600 text-white">
+                    <SelectTrigger className="bg-gray-800 border-gray-600 text-white w-full">
                       <SelectValue placeholder="Select person" />
                     </SelectTrigger>
                     <SelectContent className="bg-gray-800 border-gray-600 text-white">
-                      {tripData.participants.map((name) => (
+                      {tripData?.participants.map((name) => (
                         <SelectItem key={name} value={name}>{name}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
               )}
-              
               {!newExpense.deductFromFund && (
                 <div>
                   <Label htmlFor="paidBy" className="text-white">Paid By</Label>
                   <Select value={newExpense.paidBy} onValueChange={(value) => setNewExpense(prev => ({ ...prev, paidBy: value }))}>
-                    <SelectTrigger className="bg-gray-800 border-gray-600 text-white">
+                    <SelectTrigger className="bg-gray-800 border-gray-600 text-white w-full">
                       <SelectValue placeholder="Select person" />
                     </SelectTrigger>
                     <SelectContent className="bg-gray-800 border-gray-600 text-white">
-                      {tripData.participants.map((name) => (
+                      {tripData?.participants.map((name) => (
                         <SelectItem key={name} value={name}>{name}</SelectItem>
                       ))}
                     </SelectContent>
@@ -640,24 +620,22 @@ const Dashboard = () => {
                 </div>
               )}
             </div>
-            
             <Button onClick={addExpense} variant="netflix" className="w-full">
               Add Expense
             </Button>
           </CardContent>
         </Card>
-
         {/* Expenses Table */}
-        <Card className="netflix-card">
+        <Card className="netflix-card mb-8">
           <CardHeader>
-            <CardTitle className="text-white">Expense History</CardTitle>
+            <CardTitle className="text-white text-lg sm:text-xl">Expense History</CardTitle>
           </CardHeader>
           <CardContent>
-            {tripData.expenses.length === 0 ? (
+            {(!tripData || tripData.expenses.length === 0) ? (
               <p className="text-gray-300 text-center py-8">No expenses added yet</p>
             ) : (
               <div className="overflow-x-auto">
-                <Table>
+                <Table className="min-w-full">
                   <TableHeader>
                     <TableRow className="border-gray-600">
                       <TableHead className="text-white">Title</TableHead>
@@ -670,26 +648,12 @@ const Dashboard = () => {
                   </TableHeader>
                   <TableBody>
                     {tripData.expenses.map((expense) => (
-                      <TableRow 
-                        key={expense.id} 
-                        className={`border-gray-600 ${isExpenseOverFund(expense) ? 'bg-red-900/20' : ''}`}
-                      >
-                        <TableCell className={`${isExpenseOverFund(expense) ? 'text-red-400 font-bold' : 'text-white'}`}>
-                          {expense.title}
-                          {isExpenseOverFund(expense) && <span className="ml-2 text-xs">(Distributed Equally)</span>}
-                        </TableCell>
-                        <TableCell className={`${isExpenseOverFund(expense) ? 'text-red-400 font-bold' : 'text-white'}`}>
-                          ₹{expense.amount.toLocaleString()}
-                        </TableCell>
-                        <TableCell className={`${isExpenseOverFund(expense) ? 'text-red-400 font-bold' : 'text-white'}`}>
-                          {expense.paidBy}
-                        </TableCell>
-                        <TableCell className={`${isExpenseOverFund(expense) ? 'text-red-400 font-bold' : 'text-white'}`}>
-                          {expense.deductFromFund ? "Yes" : "No"}
-                        </TableCell>
-                        <TableCell className={`${isExpenseOverFund(expense) ? 'text-red-400 font-bold' : 'text-white'}`}>
-                          ₹{getPerPersonShare(expense).toLocaleString()}
-                        </TableCell>
+                      <TableRow key={expense.id} className={`border-gray-600 ${expense.deductFromFund ? 'bg-red-900/20' : ''}`}>
+                        <TableCell className={`${expense.deductFromFund ? 'text-red-400 font-bold' : 'text-white'}`}>{expense.title}</TableCell>
+                        <TableCell className={`${expense.deductFromFund ? 'text-red-400 font-bold' : 'text-white'}`}>₹{expense.amount.toLocaleString()}</TableCell>
+                        <TableCell className={`${expense.deductFromFund ? 'text-red-400 font-bold' : 'text-white'}`}>{expense.paidBy}</TableCell>
+                        <TableCell className={`${expense.deductFromFund ? 'text-red-400 font-bold' : 'text-white'}`}>{expense.deductFromFund ? "Yes" : "No"}</TableCell>
+                        <TableCell className={`${expense.deductFromFund ? 'text-red-400 font-bold' : 'text-white'}`}>₹{getPerPersonShare(expense).toLocaleString()}</TableCell>
                         <TableCell>
                           <Button
                             variant="destructive"
@@ -707,73 +671,10 @@ const Dashboard = () => {
             )}
           </CardContent>
         </Card>
-
-        {/* Pending Reimbursements */}
-        {Object.keys(pendingReimbursements).length > 0 && (
-          <Card className="netflix-card">
-            <CardHeader>
-              <CardTitle className="text-white">🧾 Pending Reimbursements</CardTitle>
-              <CardDescription className="text-gray-300">
-                Click the button when you receive the payment
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-6">
-                {Object.entries(pendingReimbursements).map(([payer, debtors]) => {
-                  console.log('Rendering reimbursements for payer:', payer, debtors);
-                  return (
-                    <div key={payer} className="netflix-card rounded-lg p-4">
-                      <h3 className="text-white text-xl font-bold mb-4">
-                        💰 {payer} (Waiting for payment)
-                      </h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                        {Object.entries(debtors).map(([debtor, amount]) => {
-                          console.log('Rendering debtor:', debtor, amount);
-                          return (
-                            <div key={debtor} className="bg-red-900/20 rounded-lg p-3 border border-red-600/30">
-                              <div className="flex justify-between items-center">
-                                <div>
-                                  <p className="text-white font-medium">{debtor}</p>
-                                  <p className="text-red-400 font-bold text-lg">
-                                    Owes ₹{amount.toFixed(2)}
-                                  </p>
-                                </div>
-                                {tripData?.receivedPayments?.[payer]?.[debtor] ? (
-                                  <div className="flex items-center gap-1 text-green-400 bg-green-900/20 p-2 rounded">
-                                    <CheckCircle2 className="h-5 w-5" />
-                                    <span>Received</span>
-                                  </div>
-                                ) : (
-                                  <Button
-                                    onClick={() => {
-                                      console.log('Button clicked for:', { payer, debtor });
-                                      markAsReceived(payer, debtor);
-                                    }}
-                                    variant="success"
-                                    size="sm"
-                                    className="flex items-center gap-2"
-                                  >
-                                    <CheckCircle2 className="h-5 w-5" />
-                                    <span>Mark as Received</span>
-                                  </Button>
-                                )}
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Settlement Information */}
-        <Card className="netflix-card">
+        {/* Settlement Instructions and Balances */}
+        <Card className="netflix-card mb-8">
           <CardHeader>
-            <CardTitle className="text-white">Final Settlement</CardTitle>
+            <CardTitle className="text-white text-lg sm:text-xl">Final Settlement</CardTitle>
             <CardDescription className="text-gray-300">
               Total contributions and remaining balances
             </CardDescription>
@@ -782,21 +683,21 @@ const Dashboard = () => {
             <div className="space-y-6">
               {/* Individual Contributions and Balances */}
               <div>
-                <h4 className="text-white font-medium mb-3">Individual Contributions:</h4>
+                <h4 className="text-white font-medium mb-3">Individual Balances:</h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                  {tripData.participants.map((name) => {
+                  {tripData?.participants.map((name) => {
                     const totalContribution = getTotalContribution(name);
                     const totalExpenseShare = getTotalExpenseShare(name);
-                    const balance = calculateSettlements()[name] || 0;
+                    const balance = totalContribution - totalExpenseShare;
                     return (
                       <div key={name} className="netflix-card rounded-lg p-3">
                         <p className="text-white font-medium">{name}</p>
                         <div className="mt-2 space-y-1">
                           <p className="text-blue-400">
-                            Initial Contribution: ₹{tripData.contributions[name].toFixed(2)}
+                            Initial Contribution: ₹{(tripData.contributions[name] ?? 0).toFixed(2)}
                           </p>
                           <p className="text-blue-400">
-                            Extra Paid: ₹{(totalContribution - tripData.contributions[name]).toFixed(2)}
+                            Extra Paid: ₹{(totalContribution - (tripData.contributions[name] ?? 0)).toFixed(2)}
                           </p>
                           <p className="text-blue-400">
                             Total Contribution: ₹{totalContribution.toFixed(2)}
@@ -804,39 +705,33 @@ const Dashboard = () => {
                           <p className="text-yellow-400">
                             Total Expense Share: ₹{totalExpenseShare.toFixed(2)}
                           </p>
-                          <p className={`text-lg font-bold ${balance > 0 ? 'text-green-400' : balance < 0 ? 'text-red-400' : 'text-white'}`}>
-                            Current Balance: {balance > 0 ? '+' : ''}₹{balance.toFixed(2)}
-                          </p>
+                          <p className={`text-lg font-bold ${balance > 0 ? 'text-green-400' : balance < 0 ? 'text-red-400' : 'text-white'}`}>Current Balance: {balance > 0 ? '+' : ''}₹{balance.toFixed(2)}</p>
                         </div>
                       </div>
                     );
                   })}
                 </div>
               </div>
-
               {/* Settlement Instructions */}
               <div>
                 <h4 className="text-white font-medium mb-3">Settlement Instructions:</h4>
+                <div className="space-y-2">
                 {getSettlementInstructions().length === 0 ? (
                   <p className="text-green-400 font-medium">All settled! Everyone is even.</p>
                 ) : (
-                  <div className="space-y-2">
-                    {getSettlementInstructions().map((settlement, index) => (
-                      <div key={index} className={`netflix-card rounded-lg p-3 ${settlement.status === 'received' ? 'border border-green-600/30' : ''}`}>
+                    getSettlementInstructions().map((settlement, index) => (
+                      <div key={index} className="netflix-card rounded-lg p-3">
                         <p className="text-white">
                           <span className="font-medium text-red-400">{settlement.from}</span>
                           {" owes "}
                           <span className="font-medium text-green-400">{settlement.to}</span>
                           {" "}
                           <span className="font-bold text-yellow-400">₹{settlement.amount.toFixed(2)}</span>
-                          {settlement.status === 'received' && (
-                            <span className="ml-2 text-green-400">✓ Received</span>
-                          )}
                         </p>
                       </div>
-                    ))}
+                    ))
+                  )}
                   </div>
-                )}
               </div>
             </div>
           </CardContent>

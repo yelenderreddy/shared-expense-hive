@@ -87,7 +87,7 @@ const SignUp = () => {
           </Link>
         </div>
 
-        <div className="max-w-md mx-auto animate-fade-in" style={{ animationDelay: '0.1s' }}>
+        <div className="max-w-md mx-auto animate-fade-in w-full px-2 sm:px-0" style={{ animationDelay: '0.1s' }}>
           <Card className="netflix-card">
             <CardHeader className="text-center pb-6">
               <div className="bg-red-600/20 rounded-full p-3 w-16 h-16 mx-auto mb-4 flex items-center justify-center">
@@ -99,7 +99,7 @@ const SignUp = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <form onSubmit={handleSubmit} className="space-y-6">
+              <form onSubmit={handleSubmit} className="space-y-6 w-full">
                 <div>
                   <Label htmlFor="email" className="text-white font-medium text-sm sm:text-base">
                     Email Address

@@ -18,43 +18,44 @@ const Index = () => {
   return (
     <div className="min-h-screen netflix-gradient">
       {/* Header with Auth */}
-      <div className="responsive-container py-4">
-        <div className="flex justify-between items-center">
-          <div className="text-white font-bold text-xl">Shared Expense Hive</div>
-          <div className="flex items-center gap-4">
+      <header className="w-full bg-transparent">
+        <div className="responsive-container py-4 flex flex-col xs:flex-row items-center justify-between gap-3 xs:gap-0">
+          <div className="text-white font-bold text-xl flex-shrink-0">Shared Expense Hive</div>
+          <nav className="w-full xs:w-auto flex flex-col xs:flex-row items-center gap-2 xs:gap-4 mt-2 xs:mt-0">
             {user ? (
-              <div className="flex items-center gap-3">
-                <div className="flex items-center gap-2 text-white">
+              <>
+                <div className="flex items-center gap-2 text-white w-full xs:w-auto justify-between xs:justify-end">
                   <User className="h-5 w-5" />
-                  <span className="text-sm">{user.email}</span>
+                  <span className="text-sm break-all">{user.email}</span>
+                  <Button
+                    variant="netflix-secondary"
+                    size="sm"
+                    onClick={handleSignOut}
+                    className="flex items-center gap-2 min-h-[44px] min-w-[44px] w-full xs:w-auto"
+                    aria-label="Sign Out"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    <span className="hidden xs:inline">Sign Out</span>
+                  </Button>
                 </div>
-                <Button
-                  variant="netflix-secondary"
-                  size="sm"
-                  onClick={handleSignOut}
-                  className="flex items-center gap-2"
-                >
-                  <LogOut className="h-4 w-4" />
-                  Sign Out
-                </Button>
-              </div>
+              </>
             ) : (
-              <div className="flex items-center gap-3">
-                <Link to="/signin">
-                  <Button variant="netflix-secondary" size="sm">
+              <div className="flex flex-col xs:flex-row items-center gap-2 xs:gap-3 w-full xs:w-auto">
+                <Link to="/signin" className="w-full xs:w-auto">
+                  <Button variant="netflix-secondary" size="sm" className="min-h-[44px] min-w-[44px] w-full xs:w-auto" aria-label="Sign In">
                     Sign In
                   </Button>
                 </Link>
-                <Link to="/signup">
-                  <Button variant="netflix" size="sm">
+                <Link to="/signup" className="w-full xs:w-auto">
+                  <Button variant="netflix" size="sm" className="min-h-[44px] min-w-[44px] w-full xs:w-auto" aria-label="Sign Up">
                     Sign Up
                   </Button>
                 </Link>
               </div>
             )}
-          </div>
+          </nav>
         </div>
-      </div>
+      </header>
 
       <div className="responsive-container py-6 sm:py-8 md:py-12">
         <div className="text-center mb-8 sm:mb-12 animate-fade-in">
@@ -64,14 +65,14 @@ const Index = () => {
           <p className="text-responsive sm:text-lg md:text-xl text-gray-300 mb-6 sm:mb-8 max-w-3xl mx-auto leading-relaxed">
             Manage group expenses effortlessly with pooled funds and automatic settlements
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-4 gap-y-2 justify-center flex-wrap w-full">
             {user ? (
               <>
                 <Link to="/trips">
                   <Button 
                     size="lg" 
                     variant="netflix"
-                    className="text-responsive font-semibold px-6 sm:px-8 py-4 sm:py-5 shadow-2xl hover:shadow-3xl flex items-center gap-2"
+                    className="text-responsive font-semibold px-6 sm:px-8 py-4 sm:py-5 shadow-2xl hover:shadow-3xl flex items-center gap-2 w-full sm:w-auto min-w-0"
                   >
                     <MapPin className="h-5 w-5" />
                     My Trips
@@ -81,7 +82,7 @@ const Index = () => {
                   <Button 
                     size="lg" 
                     variant="netflix-secondary"
-                    className="text-responsive font-semibold px-6 sm:px-8 py-4 sm:py-5 shadow-2xl hover:shadow-3xl"
+                    className="text-responsive font-semibold px-6 sm:px-8 py-4 sm:py-5 shadow-2xl hover:shadow-3xl w-full sm:w-auto min-w-0"
                   >
                     Start New Trip
                   </Button>
@@ -92,7 +93,7 @@ const Index = () => {
                 <Button 
                   size="lg" 
                   variant="netflix"
-                  className="text-responsive font-semibold px-6 sm:px-8 py-4 sm:py-5 shadow-2xl hover:shadow-3xl"
+                  className="text-responsive font-semibold px-6 sm:px-8 py-4 sm:py-5 shadow-2xl hover:shadow-3xl w-full sm:w-auto min-w-0"
                 >
                   Get Started
                 </Button>

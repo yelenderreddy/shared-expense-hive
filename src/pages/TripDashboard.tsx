@@ -396,8 +396,8 @@ const TripDashboard = ({ isSharedView = false }: TripDashboardProps) => {
       {/* Sticky Navigation */}
       <div className="sticky top-0 z-50 netflix-glass border-b border-gray-600">
         <div className="responsive-container py-4">
-          <div className="flex items-center justify-between mb-4">
-            <Link to="/trips" className="text-white hover:text-red-400 flex items-center gap-2 transition-colors">
+          <div className="flex flex-col sm:flex-row items-center justify-between mb-4 gap-2">
+            <Link to="/trips" className="text-white hover:text-red-400 flex items-center gap-2 transition-colors text-base sm:text-lg">
               <ArrowLeft className="h-4 w-4" />
               Back to Trips
             </Link>
@@ -431,7 +431,6 @@ const TripDashboard = ({ isSharedView = false }: TripDashboardProps) => {
               )}
             </div>
           </div>
-          
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-center">
             <div className="netflix-card rounded-lg p-3">
               <p className="text-gray-300 text-sm">Initial Pool</p>
@@ -455,10 +454,11 @@ const TripDashboard = ({ isSharedView = false }: TripDashboardProps) => {
 
       {/* Join Trip Button for shared view (after sticky nav, before dashboard) */}
       {isSharedView && user && trip && !trip.participants.includes(user.email || user.id) && !hasJoinedAsViewer ? (
-        <div className="flex flex-col items-center mt-4">
-          <p className="text-white mb-4">Join to view trip details</p>
+        <div className="flex flex-col items-center mt-4 px-2">
+          <p className="text-white mb-4 text-center">Join to view trip details</p>
           <Button
             variant="netflix"
+            className="w-full max-w-xs"
             onClick={async () => {
               localStorage.setItem(`joined_trip_${tripId}`, 'true');
               setHasJoinedAsViewer(true);
@@ -475,11 +475,11 @@ const TripDashboard = ({ isSharedView = false }: TripDashboardProps) => {
           </Button>
         </div>
       ) : (
-      <div className="responsive-container py-8 space-y-8">
+      <div className="responsive-container py-6 sm:py-8 space-y-8">
         {/* Trip Info */}
         <Card className="netflix-card">
           <CardHeader>
-            <CardTitle className="text-white">{trip.name}</CardTitle>
+            <CardTitle className="text-white text-lg sm:text-xl md:text-2xl">{trip.name}</CardTitle>
             <CardDescription className="text-gray-300">
               Created on {new Date(trip.created_at).toLocaleDateString()}
             </CardDescription>
@@ -512,10 +512,10 @@ const TripDashboard = ({ isSharedView = false }: TripDashboardProps) => {
         </Card>
 
         {/* Add New Expense */}
-          {(!isSharedView) && (
+        {(!isSharedView) && (
         <Card className="netflix-card">
           <CardHeader>
-            <CardTitle className="text-white flex items-center gap-2">
+            <CardTitle className="text-white flex items-center gap-2 text-lg sm:text-xl">
               <Plus className="h-5 w-5" />
               Add New Expense
             </CardTitle>
@@ -529,7 +529,7 @@ const TripDashboard = ({ isSharedView = false }: TripDashboardProps) => {
                   value={newExpense.title}
                   onChange={(e) => setNewExpense(prev => ({ ...prev, title: e.target.value }))}
                   placeholder="e.g., Hotel, Food, Transport"
-                  className="bg-gray-800 border-gray-600 text-white placeholder-gray-400 focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                  className="bg-gray-800 border-gray-600 text-white placeholder-gray-400 focus:ring-2 focus:ring-red-500 focus:border-transparent w-full"
                 />
               </div>
               <div>
@@ -544,12 +544,11 @@ const TripDashboard = ({ isSharedView = false }: TripDashboardProps) => {
                     value={newExpense.amount}
                     onChange={(e) => setNewExpense(prev => ({ ...prev, amount: e.target.value }))}
                     placeholder="0.00"
-                    className="pl-8 bg-gray-800 border-gray-600 text-white placeholder-gray-400 focus:ring-2 focus:ring-red-500 focus:border-transparent [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
+                    className="pl-8 bg-gray-800 border-gray-600 text-white placeholder-gray-400 focus:ring-2 focus:ring-red-500 focus:border-transparent w-full [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
                   />
                 </div>
               </div>
             </div>
-            
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="flex items-center space-x-2">
                 <div
@@ -572,12 +571,11 @@ const TripDashboard = ({ isSharedView = false }: TripDashboardProps) => {
                 </div>
                 <Label htmlFor="deductFromFund" className="text-white font-medium cursor-pointer">Deduct from Pooled Fund</Label>
               </div>
-              
               {(newExpense.deductFromFund && getRemainingFund() < parseFloat(newExpense.amount || "0")) && (
                 <div>
                   <Label htmlFor="paidBy" className="text-white">Who will pay the remaining amount?</Label>
                   <Select value={newExpense.paidBy} onValueChange={(value) => setNewExpense(prev => ({ ...prev, paidBy: value }))}>
-                    <SelectTrigger className="bg-gray-800 border-gray-600 text-white">
+                    <SelectTrigger className="bg-gray-800 border-gray-600 text-white w-full">
                       <SelectValue placeholder="Select person" />
                     </SelectTrigger>
                     <SelectContent className="bg-gray-800 border-gray-600 text-white">
@@ -588,12 +586,11 @@ const TripDashboard = ({ isSharedView = false }: TripDashboardProps) => {
                   </Select>
                 </div>
               )}
-              
               {!newExpense.deductFromFund && (
                 <div>
                   <Label htmlFor="paidBy" className="text-white">Paid By</Label>
                   <Select value={newExpense.paidBy} onValueChange={(value) => setNewExpense(prev => ({ ...prev, paidBy: value }))}>
-                    <SelectTrigger className="bg-gray-800 border-gray-600 text-white">
+                    <SelectTrigger className="bg-gray-800 border-gray-600 text-white w-full">
                       <SelectValue placeholder="Select person" />
                     </SelectTrigger>
                     <SelectContent className="bg-gray-800 border-gray-600 text-white">
@@ -605,25 +602,24 @@ const TripDashboard = ({ isSharedView = false }: TripDashboardProps) => {
                 </div>
               )}
             </div>
-            
             <Button onClick={addExpense} variant="netflix" className="w-full">
               Add Expense
             </Button>
           </CardContent>
         </Card>
-          )}
+        )}
 
         {/* Expenses Table */}
         <Card className="netflix-card">
           <CardHeader>
-            <CardTitle className="text-white">Expense History</CardTitle>
+            <CardTitle className="text-white text-lg sm:text-xl">Expense History</CardTitle>
           </CardHeader>
           <CardContent>
             {expenses.length === 0 ? (
               <p className="text-gray-300 text-center py-8">No expenses added yet</p>
             ) : (
               <div className="overflow-x-auto">
-                <Table>
+                <Table className="min-w-full">
                   <TableHeader>
                     <TableRow className="border-gray-600">
                       <TableHead className="text-white">Title</TableHead>
@@ -631,7 +627,7 @@ const TripDashboard = ({ isSharedView = false }: TripDashboardProps) => {
                       <TableHead className="text-white">Paid By</TableHead>
                       <TableHead className="text-white">From Fund?</TableHead>
                       <TableHead className="text-white">Per Person</TableHead>
-                        {(!isSharedView) && <TableHead className="text-white">Actions</TableHead>}
+                      {(!isSharedView) && <TableHead className="text-white">Actions</TableHead>}
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -640,23 +636,12 @@ const TripDashboard = ({ isSharedView = false }: TripDashboardProps) => {
                         key={expense.id} 
                         className={`border-gray-600 ${expense.deduct_from_fund ? 'bg-red-900/20' : ''}`}
                       >
-                        <TableCell className={`${expense.deduct_from_fund ? 'text-red-400 font-bold' : 'text-white'}`}>
-                          {expense.title}
-                          {expense.deduct_from_fund && <span className="ml-2 text-xs">(From Fund)</span>}
-                        </TableCell>
-                        <TableCell className={`${expense.deduct_from_fund ? 'text-red-400 font-bold' : 'text-white'}`}>
-                          ₹{expense.amount.toLocaleString()}
-                        </TableCell>
-                        <TableCell className={`${expense.deduct_from_fund ? 'text-red-400 font-bold' : 'text-white'}`}>
-                          {expense.paid_by}
-                        </TableCell>
-                        <TableCell className={`${expense.deduct_from_fund ? 'text-red-400 font-bold' : 'text-white'}`}>
-                          {expense.deduct_from_fund ? "Yes" : "No"}
-                        </TableCell>
-                        <TableCell className={`${expense.deduct_from_fund ? 'text-red-400 font-bold' : 'text-white'}`}>
-                          ₹{getPerPersonShare(expense).toLocaleString()}
-                        </TableCell>
-                          {(!isSharedView) && (
+                        <TableCell className={`${expense.deduct_from_fund ? 'text-red-400 font-bold' : 'text-white'}`}> {expense.title} {expense.deduct_from_fund && <span className="ml-2 text-xs">(From Fund)</span>} </TableCell>
+                        <TableCell className={`${expense.deduct_from_fund ? 'text-red-400 font-bold' : 'text-white'}`}> ₹{expense.amount.toLocaleString()} </TableCell>
+                        <TableCell className={`${expense.deduct_from_fund ? 'text-red-400 font-bold' : 'text-white'}`}> {expense.paid_by} </TableCell>
+                        <TableCell className={`${expense.deduct_from_fund ? 'text-red-400 font-bold' : 'text-white'}`}> {expense.deduct_from_fund ? "Yes" : "No"} </TableCell>
+                        <TableCell className={`${expense.deduct_from_fund ? 'text-red-400 font-bold' : 'text-white'}`}> ₹{getPerPersonShare(expense).toLocaleString()} </TableCell>
+                        {(!isSharedView) && (
                         <TableCell>
                           <Button
                             variant="destructive"
@@ -666,7 +651,7 @@ const TripDashboard = ({ isSharedView = false }: TripDashboardProps) => {
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         </TableCell>
-                          )}
+                        )}
                       </TableRow>
                     ))}
                   </TableBody>
@@ -677,10 +662,10 @@ const TripDashboard = ({ isSharedView = false }: TripDashboardProps) => {
         </Card>
 
         {/* Pending Reimbursements */}
-          {(Object.keys(getPendingReimbursements()).length > 0 && !isSharedView) && (
+        {(Object.keys(getPendingReimbursements()).length > 0 && !isSharedView) && (
           <Card className="netflix-card">
             <CardHeader>
-              <CardTitle className="text-white">🧾 Pending Reimbursements</CardTitle>
+              <CardTitle className="text-white text-lg sm:text-xl">🧾 Pending Reimbursements</CardTitle>
               <CardDescription className="text-gray-300">
                 Click the button when you receive the payment
               </CardDescription>
@@ -689,7 +674,7 @@ const TripDashboard = ({ isSharedView = false }: TripDashboardProps) => {
               <div className="space-y-6">
                 {Object.entries(getPendingReimbursements()).map(([payer, debtors]) => (
                   <div key={payer} className="netflix-card rounded-lg p-4">
-                    <h3 className="text-white text-xl font-bold mb-4">
+                    <h3 className="text-white text-lg sm:text-xl font-bold mb-4">
                       💰 {payer} (Waiting for payment)
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -732,7 +717,7 @@ const TripDashboard = ({ isSharedView = false }: TripDashboardProps) => {
         {/* Settlement Information */}
         <Card className="netflix-card">
           <CardHeader>
-            <CardTitle className="text-white">Final Settlement</CardTitle>
+            <CardTitle className="text-white text-lg sm:text-xl">Final Settlement</CardTitle>
             <CardDescription className="text-gray-300">
               Total contributions and remaining balances
             </CardDescription>
@@ -779,7 +764,6 @@ const TripDashboard = ({ isSharedView = false }: TripDashboardProps) => {
                 {(() => {
                   const pendingReimbursements = getPendingReimbursements();
                   const allSettlements = [];
-                  
                   Object.entries(pendingReimbursements).forEach(([payer, debtors]) => {
                     Object.entries(debtors).forEach(([debtor, amount]) => {
                       const isReceived = receivedPayments[payer]?.[debtor];
@@ -791,11 +775,9 @@ const TripDashboard = ({ isSharedView = false }: TripDashboardProps) => {
                       });
                     });
                   });
-                  
                   if (allSettlements.length === 0) {
                     return <p className="text-green-400 font-medium">All settled! Everyone is even.</p>;
                   }
-                  
                   return (
                     <div className="space-y-2">
                       {allSettlements.map((settlement, index) => (
