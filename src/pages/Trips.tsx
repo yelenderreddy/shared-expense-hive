@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
-import { getTripsByUser, createTrip, deleteTrip, Trip } from "@/lib/database";
+import { getTripsByUser, createTrip, deleteTrip, Trip, getViewedTripsByUser } from "@/lib/database";
 import { ArrowLeft, Plus, Users, Calendar, DollarSign, Trash2, Edit } from "lucide-react";
 
 const Trips = () => {
@@ -25,10 +25,15 @@ const Trips = () => {
   const navigate = useNavigate();
   const [showJoinInput, setShowJoinInput] = useState(false);
   const [joinLink, setJoinLink] = useState("");
+  const [viewedTrips, setViewedTrips] = useState<any[]>([]);
 
   useEffect(() => {
     if (user) {
       loadTrips();
+      // Load trips viewed as viewer
+      getViewedTripsByUser(user.id).then(({ data }) => {
+        if (data) setViewedTrips(data);
+      });
     }
   }, [user]);
 
@@ -210,14 +215,14 @@ const Trips = () => {
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-white text-3xl font-bold">My Trips</h1>
           <div className="flex gap-2">
-            <Button
-              onClick={() => setShowCreateForm(true)}
-              variant="netflix"
-              className="flex items-center gap-2"
-            >
-              <Plus className="h-4 w-4" />
-              New Trip
-            </Button>
+          <Button
+            onClick={() => setShowCreateForm(true)}
+            variant="netflix"
+            className="flex items-center gap-2"
+          >
+            <Plus className="h-4 w-4" />
+            New Trip
+          </Button>
             <Button
               onClick={() => setShowJoinInput((v) => !v)}
               variant="netflix-secondary"
@@ -397,6 +402,40 @@ const Trips = () => {
                 </CardContent>
               </Card>
             ))}
+          </div>
+        )}
+
+        {/* Recently Viewed as Viewer */}
+        {console.log('viewedTrips:', viewedTrips)}
+        {viewedTrips.length > 0 && (
+          <div className="mt-12">
+            <h2 className="text-white text-2xl font-bold mb-4">Trips I Viewed</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {viewedTrips.map((v) => {
+                const trip = v.trip;
+                console.log('trip:', trip);
+                if (!trip) return null;
+                return (
+                  <Card key={trip.id} className="netflix-card-hover">
+                    <CardHeader>
+                      <CardTitle className="text-white text-lg">{trip.name}</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      <div className="flex items-center gap-2 text-gray-300">
+                        <span className="text-sm">{trip.participants.length} participants</span>
+                      </div>
+                      <Button
+                        onClick={() => navigate(`/trips/shared/${trip.id}`)}
+                        variant="destructive"
+                        className="w-full mt-4"
+                      >
+                        View as Viewer
+                      </Button>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
           </div>
         )}
 

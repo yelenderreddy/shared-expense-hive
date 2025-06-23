@@ -216,4 +216,27 @@ export const markPaymentAsReceived = async (paymentId: string) => {
     .single()
 
   return { data, error }
-} 
+}
+
+// Trip Viewers functions
+export const addTripViewer = async (tripId: string, userId: string) => {
+  // Upsert to avoid duplicates
+  const { data, error } = await supabase
+    .from('trip_viewers')
+    .upsert([
+      { trip_id: tripId, user_id: userId }
+    ], { onConflict: 'trip_id,user_id' })
+    .select()
+    .single();
+  return { data, error };
+};
+
+export const getViewedTripsByUser = async (userId: string) => {
+  // Join with trips table to get trip details, use alias 'trip'
+  const { data, error } = await supabase
+    .from('trip_viewers')
+    .select('trip_id, viewed_at, trip:trips(*)')
+    .eq('user_id', userId)
+    .order('viewed_at', { ascending: false });
+  return { data, error };
+}; 
