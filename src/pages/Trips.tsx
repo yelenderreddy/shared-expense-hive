@@ -23,6 +23,8 @@ const Trips = () => {
   });
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [showJoinInput, setShowJoinInput] = useState(false);
+  const [joinLink, setJoinLink] = useState("");
 
   useEffect(() => {
     if (user) {
@@ -173,6 +175,20 @@ const Trips = () => {
     setTripToDelete(null);
   };
 
+  const handleJoinTrip = () => {
+    // Extract tripId from the link
+    let match = joinLink.match(/trips\/shared\/([a-zA-Z0-9\-]+)/);
+    if (match && match[1]) {
+      navigate(`/trips/shared/${match[1]}`);
+    } else {
+      toast({
+        title: "Invalid Link",
+        description: "Please enter a valid shared trip link.",
+        variant: "destructive",
+      });
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen netflix-gradient flex items-center justify-center">
@@ -193,15 +209,38 @@ const Trips = () => {
 
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-white text-3xl font-bold">My Trips</h1>
-          <Button
-            onClick={() => setShowCreateForm(true)}
-            variant="netflix"
-            className="flex items-center gap-2"
-          >
-            <Plus className="h-4 w-4" />
-            New Trip
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              onClick={() => setShowCreateForm(true)}
+              variant="netflix"
+              className="flex items-center gap-2"
+            >
+              <Plus className="h-4 w-4" />
+              New Trip
+            </Button>
+            <Button
+              onClick={() => setShowJoinInput((v) => !v)}
+              variant="netflix-secondary"
+              className="flex items-center gap-2"
+            >
+              Join Trip by Link
+            </Button>
+          </div>
         </div>
+
+        {showJoinInput && (
+          <div className="mb-8 flex gap-2 items-center">
+            <Input
+              value={joinLink}
+              onChange={e => setJoinLink(e.target.value)}
+              placeholder="Paste shared trip link here"
+              className="bg-gray-800 border-gray-600 text-white placeholder-gray-400 flex-1"
+            />
+            <Button onClick={handleJoinTrip} variant="netflix">
+              Join
+            </Button>
+          </div>
+        )}
 
         {showCreateForm && (
           <Card className="netflix-card mb-8">

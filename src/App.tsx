@@ -30,6 +30,7 @@ const App = () => (
             <Route path="/signup" element={<SignUp />} />
             <Route path="/trips" element={<ProtectedRoute><Trips /></ProtectedRoute>} />
             <Route path="/trip/:tripId" element={<ProtectedRoute><TripDashboard /></ProtectedRoute>} />
+            <Route path="/trips/shared/:tripId" element={<ProtectedRoute><TripDashboard isSharedView={true} /></ProtectedRoute>} />
             <Route path="/add-members" element={<ProtectedRoute><AddMembers /></ProtectedRoute>} />
             <Route path="/setup-fund" element={<ProtectedRoute><SetupFund /></ProtectedRoute>} />
             <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />

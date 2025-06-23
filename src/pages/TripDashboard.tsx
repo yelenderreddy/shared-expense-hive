@@ -9,10 +9,14 @@ import { Switch } from "@/components/ui/switch";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
-import { getTripById, getExpensesByTrip, createExpense, deleteExpense, Trip, Expense } from "@/lib/database";
+import { getTripById, getExpensesByTrip, createExpense, deleteExpense, Trip, Expense, updateTrip } from "@/lib/database";
 import { ArrowLeft, Plus, Trash2, CheckCircle2 } from "lucide-react";
 
-const TripDashboard = () => {
+interface TripDashboardProps {
+  isSharedView?: boolean;
+}
+
+const TripDashboard = ({ isSharedView = false }: TripDashboardProps) => {
   const { tripId } = useParams<{ tripId: string }>();
   const [trip, setTrip] = useState<Trip | null>(null);
   const [expenses, setExpenses] = useState<Expense[]>([]);
@@ -27,12 +31,18 @@ const TripDashboard = () => {
   });
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [hasJoinedAsViewer, setHasJoinedAsViewer] = useState(false);
 
   useEffect(() => {
     if (tripId && user) {
       loadTripData();
     }
-  }, [tripId, user]);
+    if (isSharedView && tripId && user && trip && !trip.participants.includes(user.email || user.id)) {
+      if (localStorage.getItem(`joined_trip_${tripId}`) === 'true') {
+        setHasJoinedAsViewer(true);
+      }
+    }
+  }, [tripId, user, isSharedView, trip]);
 
   const loadTripData = async () => {
     if (!tripId || !user) return;
@@ -44,16 +54,6 @@ const TripDashboard = () => {
         toast({
           title: "Error",
           description: "Failed to load trip",
-          variant: "destructive",
-        });
-        navigate("/trips");
-        return;
-      }
-
-      if (tripData.user_id !== user.id) {
-        toast({
-          title: "Error",
-          description: "You don't have access to this trip",
           variant: "destructive",
         });
         navigate("/trips");
@@ -325,7 +325,7 @@ const TripDashboard = () => {
     if (!trip) return 0;
     
     // Start with initial contribution
-    let total = trip.contributions[name] || 0;
+    let total = trip.contributions[name] ?? 0;
     
     // Add any extra expenses paid by this person
     expenses.forEach(expense => {
@@ -401,16 +401,35 @@ const TripDashboard = () => {
               <ArrowLeft className="h-4 w-4" />
               Back to Trips
             </Link>
-            <Button 
-              variant="netflix-secondary" 
-              size="sm"
-              onClick={() => {
-                localStorage.clear();
-                navigate("/");
-              }}
-            >
-              Reset Trip
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button 
+                variant="netflix-secondary" 
+                size="sm"
+                onClick={() => {
+                  localStorage.clear();
+                  navigate("/");
+                }}
+              >
+                Reset Trip
+              </Button>
+              {/* Share Button: only show if not shared view and user is owner */}
+              {!isSharedView && user && trip && user.id === trip.user_id && (
+                <Button
+                  variant="netflix"
+                  size="sm"
+                  onClick={async () => {
+                    const shareUrl = `${window.location.origin}/trips/shared/${trip.id}`;
+                    await navigator.clipboard.writeText(shareUrl);
+                    toast({
+                      title: "Link Copied!",
+                      description: "Share this link with others to let them view the trip.",
+                    });
+                  }}
+                >
+                  Share
+                </Button>
+              )}
+            </div>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-center">
@@ -434,347 +453,371 @@ const TripDashboard = () => {
         </div>
       </div>
 
-      <div className="responsive-container py-8 space-y-8">
-        {/* Trip Info */}
-        <Card className="netflix-card">
-          <CardHeader>
-            <CardTitle className="text-white">{trip.name}</CardTitle>
-            <CardDescription className="text-gray-300">
-              Created on {new Date(trip.created_at).toLocaleDateString()}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <h4 className="text-white font-medium mb-2">Participants:</h4>
-                <div className="flex flex-wrap gap-2">
-                  {trip.participants.map((participant, index) => (
-                    <span key={index} className="bg-red-600/20 text-white px-3 py-1 rounded-full text-sm">
-                      {participant}
-                    </span>
-                  ))}
+      {/* Join Trip Button for shared view (after sticky nav, before dashboard) */}
+      {isSharedView && user && trip && !trip.participants.includes(user.email || user.id) && !hasJoinedAsViewer ? (
+        <div className="flex flex-col items-center mt-4">
+          <p className="text-white mb-4">Join to view trip details</p>
+          <Button
+            variant="netflix"
+            onClick={async () => {
+              localStorage.setItem(`joined_trip_${tripId}`, 'true');
+              setHasJoinedAsViewer(true);
+              toast({
+                title: "Joined as Viewer!",
+                description: "You can now view this trip's details.",
+              });
+            }}
+          >
+            Join Trip
+          </Button>
+        </div>
+      ) : (
+        <div className="responsive-container py-8 space-y-8">
+          {/* Trip Info */}
+          <Card className="netflix-card">
+            <CardHeader>
+              <CardTitle className="text-white">{trip.name}</CardTitle>
+              <CardDescription className="text-gray-300">
+                Created on {new Date(trip.created_at).toLocaleDateString()}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <h4 className="text-white font-medium mb-2">Participants:</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {trip.participants.map((participant, index) => (
+                      <span key={index} className="bg-red-600/20 text-white px-3 py-1 rounded-full text-sm">
+                        {participant}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <h4 className="text-white font-medium mb-2">Contributions:</h4>
+                  <div className="space-y-1">
+                    {Object.entries(trip.contributions).map(([name, amount]) => (
+                      <div key={name} className="flex justify-between text-gray-300">
+                        <span>{name}:</span>
+                        <span>₹{amount.toFixed(2)}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
-              <div>
-                <h4 className="text-white font-medium mb-2">Contributions:</h4>
-                <div className="space-y-1">
-                  {Object.entries(trip.contributions).map(([name, amount]) => (
-                    <div key={name} className="flex justify-between text-gray-300">
-                      <span>{name}:</span>
-                      <span>₹{amount.toFixed(2)}</span>
+            </CardContent>
+          </Card>
+
+          {/* Add New Expense */}
+          {(!isSharedView) && (
+            <Card className="netflix-card">
+              <CardHeader>
+                <CardTitle className="text-white flex items-center gap-2">
+                  <Plus className="h-5 w-5" />
+                  Add New Expense
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="title" className="text-white">Title</Label>
+                    <Input
+                      id="title"
+                      value={newExpense.title}
+                      onChange={(e) => setNewExpense(prev => ({ ...prev, title: e.target.value }))}
+                      placeholder="e.g., Hotel, Food, Transport"
+                      className="bg-gray-800 border-gray-600 text-white placeholder-gray-400 focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="amount" className="text-white">Amount</Label>
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">₹</span>
+                      <Input
+                        id="amount"
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        value={newExpense.amount}
+                        onChange={(e) => setNewExpense(prev => ({ ...prev, amount: e.target.value }))}
+                        placeholder="0.00"
+                        className="pl-8 bg-gray-800 border-gray-600 text-white placeholder-gray-400 focus:ring-2 focus:ring-red-500 focus:border-transparent [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
+                      />
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="flex items-center space-x-2">
+                    <div
+                      onClick={() => setNewExpense(prev => ({ 
+                        ...prev, 
+                        deductFromFund: !prev.deductFromFund,
+                        paidBy: !prev.deductFromFund ? "" : prev.paidBy
+                      }))}
+                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-all duration-200 cursor-pointer ${
+                        newExpense.deductFromFund 
+                          ? 'bg-red-600 shadow-lg shadow-red-600/30' 
+                          : 'bg-gray-600 hover:bg-gray-500'
+                      }`}
+                    >
+                      <span
+                        className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-md transition-all duration-200 ${
+                          newExpense.deductFromFund ? 'translate-x-6' : 'translate-x-1'
+                        }`}
+                      />
+                    </div>
+                    <Label htmlFor="deductFromFund" className="text-white font-medium cursor-pointer">Deduct from Pooled Fund</Label>
+                  </div>
+                  
+                  {(newExpense.deductFromFund && getRemainingFund() < parseFloat(newExpense.amount || "0")) && (
+                    <div>
+                      <Label htmlFor="paidBy" className="text-white">Who will pay the remaining amount?</Label>
+                      <Select value={newExpense.paidBy} onValueChange={(value) => setNewExpense(prev => ({ ...prev, paidBy: value }))}>
+                        <SelectTrigger className="bg-gray-800 border-gray-600 text-white">
+                          <SelectValue placeholder="Select person" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-gray-800 border-gray-600 text-white">
+                          {trip.participants.map((name) => (
+                            <SelectItem key={name} value={name}>{name}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
+                  
+                  {!newExpense.deductFromFund && (
+                    <div>
+                      <Label htmlFor="paidBy" className="text-white">Paid By</Label>
+                      <Select value={newExpense.paidBy} onValueChange={(value) => setNewExpense(prev => ({ ...prev, paidBy: value }))}>
+                        <SelectTrigger className="bg-gray-800 border-gray-600 text-white">
+                          <SelectValue placeholder="Select person" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-gray-800 border-gray-600 text-white">
+                          {trip.participants.map((name) => (
+                            <SelectItem key={name} value={name}>{name}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
+                </div>
+                
+                <Button onClick={addExpense} variant="netflix" className="w-full">
+                  Add Expense
+                </Button>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Expenses Table */}
+          <Card className="netflix-card">
+            <CardHeader>
+              <CardTitle className="text-white">Expense History</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {expenses.length === 0 ? (
+                <p className="text-gray-300 text-center py-8">No expenses added yet</p>
+              ) : (
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="border-gray-600">
+                        <TableHead className="text-white">Title</TableHead>
+                        <TableHead className="text-white">Amount</TableHead>
+                        <TableHead className="text-white">Paid By</TableHead>
+                        <TableHead className="text-white">From Fund?</TableHead>
+                        <TableHead className="text-white">Per Person</TableHead>
+                        {(!isSharedView) && <TableHead className="text-white">Actions</TableHead>}
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {expenses.map((expense) => (
+                        <TableRow 
+                          key={expense.id} 
+                          className={`border-gray-600 ${expense.deduct_from_fund ? 'bg-red-900/20' : ''}`}
+                        >
+                          <TableCell className={`${expense.deduct_from_fund ? 'text-red-400 font-bold' : 'text-white'}`}>
+                            {expense.title}
+                            {expense.deduct_from_fund && <span className="ml-2 text-xs">(From Fund)</span>}
+                          </TableCell>
+                          <TableCell className={`${expense.deduct_from_fund ? 'text-red-400 font-bold' : 'text-white'}`}>
+                            ₹{expense.amount.toLocaleString()}
+                          </TableCell>
+                          <TableCell className={`${expense.deduct_from_fund ? 'text-red-400 font-bold' : 'text-white'}`}>
+                            {expense.paid_by}
+                          </TableCell>
+                          <TableCell className={`${expense.deduct_from_fund ? 'text-red-400 font-bold' : 'text-white'}`}>
+                            {expense.deduct_from_fund ? "Yes" : "No"}
+                          </TableCell>
+                          <TableCell className={`${expense.deduct_from_fund ? 'text-red-400 font-bold' : 'text-white'}`}>
+                            ₹{getPerPersonShare(expense).toLocaleString()}
+                          </TableCell>
+                          {(!isSharedView) && (
+                            <TableCell>
+                              <Button
+                                variant="destructive"
+                                size="sm"
+                                onClick={() => deleteExpenseHandler(expense.id)}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </TableCell>
+                          )}
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Pending Reimbursements */}
+          {(Object.keys(getPendingReimbursements()).length > 0 && !isSharedView) && (
+            <Card className="netflix-card">
+              <CardHeader>
+                <CardTitle className="text-white">🧾 Pending Reimbursements</CardTitle>
+                <CardDescription className="text-gray-300">
+                  Click the button when you receive the payment
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-6">
+                  {Object.entries(getPendingReimbursements()).map(([payer, debtors]) => (
+                    <div key={payer} className="netflix-card rounded-lg p-4">
+                      <h3 className="text-white text-xl font-bold mb-4">
+                        💰 {payer} (Waiting for payment)
+                      </h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                        {Object.entries(debtors).map(([debtor, amount]) => (
+                          <div key={debtor} className="bg-red-900/20 rounded-lg p-3 border border-red-600/30">
+                            <div className="flex justify-between items-center">
+                              <div>
+                                <p className="text-white font-medium">{debtor}</p>
+                                <p className="text-red-400 font-bold text-lg">
+                                  Owes ₹{amount.toFixed(2)}
+                                </p>
+                              </div>
+                              {receivedPayments[payer]?.[debtor] ? (
+                                <div className="flex items-center gap-1 text-green-400 bg-green-900/20 p-2 rounded">
+                                  <CheckCircle2 className="h-5 w-5" />
+                                  <span>Received</span>
+                                </div>
+                              ) : (
+                                <Button
+                                  onClick={() => markAsReceived(payer, debtor)}
+                                  variant="success"
+                                  size="sm"
+                                  className="flex items-center gap-2"
+                                >
+                                  <CheckCircle2 className="h-5 w-5" />
+                                  <span>Mark as Received</span>
+                                </Button>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   ))}
                 </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+              </CardContent>
+            </Card>
+          )}
 
-        {/* Add New Expense */}
-        <Card className="netflix-card">
-          <CardHeader>
-            <CardTitle className="text-white flex items-center gap-2">
-              <Plus className="h-5 w-5" />
-              Add New Expense
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="title" className="text-white">Title</Label>
-                <Input
-                  id="title"
-                  value={newExpense.title}
-                  onChange={(e) => setNewExpense(prev => ({ ...prev, title: e.target.value }))}
-                  placeholder="e.g., Hotel, Food, Transport"
-                  className="bg-gray-800 border-gray-600 text-white placeholder-gray-400 focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                />
-              </div>
-              <div>
-                <Label htmlFor="amount" className="text-white">Amount</Label>
-                <div className="relative">
-                  <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">₹</span>
-                  <Input
-                    id="amount"
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    value={newExpense.amount}
-                    onChange={(e) => setNewExpense(prev => ({ ...prev, amount: e.target.value }))}
-                    placeholder="0.00"
-                    className="pl-8 bg-gray-800 border-gray-600 text-white placeholder-gray-400 focus:ring-2 focus:ring-red-500 focus:border-transparent [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
-                  />
-                </div>
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="flex items-center space-x-2">
-                <div
-                  onClick={() => setNewExpense(prev => ({ 
-                    ...prev, 
-                    deductFromFund: !prev.deductFromFund,
-                    paidBy: !prev.deductFromFund ? "" : prev.paidBy
-                  }))}
-                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-all duration-200 cursor-pointer ${
-                    newExpense.deductFromFund 
-                      ? 'bg-red-600 shadow-lg shadow-red-600/30' 
-                      : 'bg-gray-600 hover:bg-gray-500'
-                  }`}
-                >
-                  <span
-                    className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-md transition-all duration-200 ${
-                      newExpense.deductFromFund ? 'translate-x-6' : 'translate-x-1'
-                    }`}
-                  />
-                </div>
-                <Label htmlFor="deductFromFund" className="text-white font-medium cursor-pointer">Deduct from Pooled Fund</Label>
-              </div>
-              
-              {(newExpense.deductFromFund && getRemainingFund() < parseFloat(newExpense.amount || "0")) && (
-                <div>
-                  <Label htmlFor="paidBy" className="text-white">Who will pay the remaining amount?</Label>
-                  <Select value={newExpense.paidBy} onValueChange={(value) => setNewExpense(prev => ({ ...prev, paidBy: value }))}>
-                    <SelectTrigger className="bg-gray-800 border-gray-600 text-white">
-                      <SelectValue placeholder="Select person" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-gray-800 border-gray-600 text-white">
-                      {trip.participants.map((name) => (
-                        <SelectItem key={name} value={name}>{name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
-              
-              {!newExpense.deductFromFund && (
-                <div>
-                  <Label htmlFor="paidBy" className="text-white">Paid By</Label>
-                  <Select value={newExpense.paidBy} onValueChange={(value) => setNewExpense(prev => ({ ...prev, paidBy: value }))}>
-                    <SelectTrigger className="bg-gray-800 border-gray-600 text-white">
-                      <SelectValue placeholder="Select person" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-gray-800 border-gray-600 text-white">
-                      {trip.participants.map((name) => (
-                        <SelectItem key={name} value={name}>{name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
-            </div>
-            
-            <Button onClick={addExpense} variant="netflix" className="w-full">
-              Add Expense
-            </Button>
-          </CardContent>
-        </Card>
-
-        {/* Expenses Table */}
-        <Card className="netflix-card">
-          <CardHeader>
-            <CardTitle className="text-white">Expense History</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {expenses.length === 0 ? (
-              <p className="text-gray-300 text-center py-8">No expenses added yet</p>
-            ) : (
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow className="border-gray-600">
-                      <TableHead className="text-white">Title</TableHead>
-                      <TableHead className="text-white">Amount</TableHead>
-                      <TableHead className="text-white">Paid By</TableHead>
-                      <TableHead className="text-white">From Fund?</TableHead>
-                      <TableHead className="text-white">Per Person</TableHead>
-                      <TableHead className="text-white">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {expenses.map((expense) => (
-                      <TableRow 
-                        key={expense.id} 
-                        className={`border-gray-600 ${expense.deduct_from_fund ? 'bg-red-900/20' : ''}`}
-                      >
-                        <TableCell className={`${expense.deduct_from_fund ? 'text-red-400 font-bold' : 'text-white'}`}>
-                          {expense.title}
-                          {expense.deduct_from_fund && <span className="ml-2 text-xs">(From Fund)</span>}
-                        </TableCell>
-                        <TableCell className={`${expense.deduct_from_fund ? 'text-red-400 font-bold' : 'text-white'}`}>
-                          ₹{expense.amount.toLocaleString()}
-                        </TableCell>
-                        <TableCell className={`${expense.deduct_from_fund ? 'text-red-400 font-bold' : 'text-white'}`}>
-                          {expense.paid_by}
-                        </TableCell>
-                        <TableCell className={`${expense.deduct_from_fund ? 'text-red-400 font-bold' : 'text-white'}`}>
-                          {expense.deduct_from_fund ? "Yes" : "No"}
-                        </TableCell>
-                        <TableCell className={`${expense.deduct_from_fund ? 'text-red-400 font-bold' : 'text-white'}`}>
-                          ₹{getPerPersonShare(expense).toLocaleString()}
-                        </TableCell>
-                        <TableCell>
-                          <Button
-                            variant="destructive"
-                            size="sm"
-                            onClick={() => deleteExpenseHandler(expense.id)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Pending Reimbursements */}
-        {Object.keys(getPendingReimbursements()).length > 0 && (
+          {/* Settlement Information */}
           <Card className="netflix-card">
             <CardHeader>
-              <CardTitle className="text-white">🧾 Pending Reimbursements</CardTitle>
+              <CardTitle className="text-white">Final Settlement</CardTitle>
               <CardDescription className="text-gray-300">
-                Click the button when you receive the payment
+                Total contributions and remaining balances
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
-                {Object.entries(getPendingReimbursements()).map(([payer, debtors]) => (
-                  <div key={payer} className="netflix-card rounded-lg p-4">
-                    <h3 className="text-white text-xl font-bold mb-4">
-                      💰 {payer} (Waiting for payment)
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                      {Object.entries(debtors).map(([debtor, amount]) => (
-                        <div key={debtor} className="bg-red-900/20 rounded-lg p-3 border border-red-600/30">
-                          <div className="flex justify-between items-center">
-                            <div>
-                              <p className="text-white font-medium">{debtor}</p>
-                              <p className="text-red-400 font-bold text-lg">
-                                Owes ₹{amount.toFixed(2)}
-                              </p>
-                            </div>
-                            {receivedPayments[payer]?.[debtor] ? (
-                              <div className="flex items-center gap-1 text-green-400 bg-green-900/20 p-2 rounded">
-                                <CheckCircle2 className="h-5 w-5" />
-                                <span>Received</span>
-                              </div>
-                            ) : (
-                              <Button
-                                onClick={() => markAsReceived(payer, debtor)}
-                                variant="success"
-                                size="sm"
-                                className="flex items-center gap-2"
-                              >
-                                <CheckCircle2 className="h-5 w-5" />
-                                <span>Mark as Received</span>
-                              </Button>
-                            )}
+                {/* Individual Contributions and Balances */}
+                <div>
+                  <h4 className="text-white font-medium mb-3">Individual Balances:</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {trip.participants.map((name) => {
+                      const totalContribution = getTotalContribution(name);
+                      const totalExpenseShare = getTotalExpenseShare(name);
+                      const balance = totalContribution - totalExpenseShare;
+                      return (
+                        <div key={name} className="netflix-card rounded-lg p-3">
+                          <p className="text-white font-medium">{name}</p>
+                          <div className="mt-2 space-y-1">
+                            <p className="text-blue-400">
+                              Initial Contribution: ₹{(trip.contributions[name] ?? 0).toFixed(2)}
+                            </p>
+                            <p className="text-blue-400">
+                              Extra Paid: ₹{(totalContribution - (trip.contributions[name] ?? 0)).toFixed(2)}
+                            </p>
+                            <p className="text-blue-400">
+                              Total Contribution: ₹{totalContribution.toFixed(2)}
+                            </p>
+                            <p className="text-yellow-400">
+                              Total Expense Share: ₹{totalExpenseShare.toFixed(2)}
+                            </p>
+                            <p className={`text-lg font-bold ${balance > 0 ? 'text-green-400' : balance < 0 ? 'text-red-400' : 'text-white'}`}>
+                              Current Balance: {balance > 0 ? '+' : ''}₹{balance.toFixed(2)}
+                            </p>
                           </div>
                         </div>
-                      ))}
-                    </div>
+                      );
+                    })}
                   </div>
-                ))}
+                </div>
+
+                {/* Settlement Instructions */}
+                <div>
+                  <h4 className="text-white font-medium mb-3">Settlement Instructions:</h4>
+                  {(() => {
+                    const pendingReimbursements = getPendingReimbursements();
+                    const allSettlements = [];
+                    
+                    Object.entries(pendingReimbursements).forEach(([payer, debtors]) => {
+                      Object.entries(debtors).forEach(([debtor, amount]) => {
+                        const isReceived = receivedPayments[payer]?.[debtor];
+                        allSettlements.push({
+                          from: debtor,
+                          to: payer,
+                          amount: amount,
+                          status: isReceived ? 'received' : 'pending'
+                        });
+                      });
+                    });
+                    
+                    if (allSettlements.length === 0) {
+                      return <p className="text-green-400 font-medium">All settled! Everyone is even.</p>;
+                    }
+                    
+                    return (
+                      <div className="space-y-2">
+                        {allSettlements.map((settlement, index) => (
+                          <div key={index} className={`netflix-card rounded-lg p-3 ${settlement.status === 'received' ? 'border border-green-600/30' : ''}`}>
+                            <p className="text-white">
+                              <span className="font-medium text-red-400">{settlement.from}</span>
+                              {" owes "}
+                              <span className="font-medium text-green-400">{settlement.to}</span>
+                              {" "}
+                              <span className="font-bold text-yellow-400">₹{settlement.amount.toFixed(2)}</span>
+                              {settlement.status === 'received' && (
+                                <span className="ml-2 text-green-400">✓ Received</span>
+                              )}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    );
+                  })()}
+                </div>
               </div>
             </CardContent>
           </Card>
-        )}
-
-        {/* Settlement Information */}
-        <Card className="netflix-card">
-          <CardHeader>
-            <CardTitle className="text-white">Final Settlement</CardTitle>
-            <CardDescription className="text-gray-300">
-              Total contributions and remaining balances
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-6">
-              {/* Individual Contributions and Balances */}
-              <div>
-                <h4 className="text-white font-medium mb-3">Individual Balances:</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                  {trip.participants.map((name) => {
-                    const totalContribution = getTotalContribution(name);
-                    const totalExpenseShare = getTotalExpenseShare(name);
-                    const balance = totalContribution - totalExpenseShare;
-                    return (
-                      <div key={name} className="netflix-card rounded-lg p-3">
-                        <p className="text-white font-medium">{name}</p>
-                        <div className="mt-2 space-y-1">
-                          <p className="text-blue-400">
-                            Initial Contribution: ₹{trip.contributions[name].toFixed(2)}
-                          </p>
-                          <p className="text-blue-400">
-                            Extra Paid: ₹{(totalContribution - trip.contributions[name]).toFixed(2)}
-                          </p>
-                          <p className="text-blue-400">
-                            Total Contribution: ₹{totalContribution.toFixed(2)}
-                          </p>
-                          <p className="text-yellow-400">
-                            Total Expense Share: ₹{totalExpenseShare.toFixed(2)}
-                          </p>
-                          <p className={`text-lg font-bold ${balance > 0 ? 'text-green-400' : balance < 0 ? 'text-red-400' : 'text-white'}`}>
-                            Current Balance: {balance > 0 ? '+' : ''}₹{balance.toFixed(2)}
-                          </p>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Settlement Instructions */}
-              <div>
-                <h4 className="text-white font-medium mb-3">Settlement Instructions:</h4>
-                {(() => {
-                  const pendingReimbursements = getPendingReimbursements();
-                  const allSettlements = [];
-                  
-                  Object.entries(pendingReimbursements).forEach(([payer, debtors]) => {
-                    Object.entries(debtors).forEach(([debtor, amount]) => {
-                      const isReceived = receivedPayments[payer]?.[debtor];
-                      allSettlements.push({
-                        from: debtor,
-                        to: payer,
-                        amount: amount,
-                        status: isReceived ? 'received' : 'pending'
-                      });
-                    });
-                  });
-                  
-                  if (allSettlements.length === 0) {
-                    return <p className="text-green-400 font-medium">All settled! Everyone is even.</p>;
-                  }
-                  
-                  return (
-                    <div className="space-y-2">
-                      {allSettlements.map((settlement, index) => (
-                        <div key={index} className={`netflix-card rounded-lg p-3 ${settlement.status === 'received' ? 'border border-green-600/30' : ''}`}>
-                          <p className="text-white">
-                            <span className="font-medium text-red-400">{settlement.from}</span>
-                            {" owes "}
-                            <span className="font-medium text-green-400">{settlement.to}</span>
-                            {" "}
-                            <span className="font-bold text-yellow-400">₹{settlement.amount.toFixed(2)}</span>
-                            {settlement.status === 'received' && (
-                              <span className="ml-2 text-green-400">✓ Received</span>
-                            )}
-                          </p>
-                        </div>
-                      ))}
-                    </div>
-                  );
-                })()}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+        </div>
+      )}
     </div>
   );
 };
