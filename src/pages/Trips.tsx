@@ -8,6 +8,7 @@ import { toast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { getTripsByUser, createTrip, deleteTrip, Trip, getViewedTripsByUser } from "@/lib/database";
 import { ArrowLeft, Plus, Users, Calendar, DollarSign, Trash2, Edit } from "lucide-react";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 
 const Trips = () => {
   const [trips, setTrips] = useState<Trip[]>([]);
@@ -207,11 +208,21 @@ const Trips = () => {
   return (
     <div className="min-h-screen netflix-gradient">
       <div className="responsive-container py-4 sm:py-6 md:py-8 px-2 sm:px-4">
-        <div className="mb-4 sm:mb-6 animate-fade-in">
-          <Link to="/" className="text-white hover:text-red-400 flex items-center gap-2 text-sm sm:text-base transition-colors">
-            <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5" />
-            <span className="truncate">Back to Home</span>
-          </Link>
+        <div className="mb-4 sm:mb-6 animate-fade-in w-full">
+          <div className="flex flex-row items-center w-full min-w-0">
+            <div className="w-10 flex-shrink-0 z-50 bg-red-500">
+              <SidebarTrigger />
+            </div>
+            <Link
+              to="/"
+              className="flex-1 text-white hover:text-red-400 flex items-center gap-2 text-sm sm:text-base transition-colors truncate justify-end"
+            >
+              <span className="flex items-center gap-1 truncate justify-end w-full">
+                <ArrowLeft className="h-5 w-5 flex-shrink-0" />
+                <span className="truncate">Back to Home</span>
+              </span>
+            </Link>
+          </div>
         </div>
 
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 gap-4 sm:gap-2 flex-wrap">
@@ -343,9 +354,9 @@ const Trips = () => {
             </CardContent>
           </Card>
         ) : (
-          <div className="flex flex-col w-full gap-6 sm:grid sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
             {trips.map((trip) => (
-              <Card key={trip.id} className="netflix-card-hover w-full sm:max-w-none overflow-hidden">
+              <Card key={trip.id} className="w-full overflow-hidden">
                 <CardHeader>
                   <div className="flex flex-col xs:flex-row justify-between items-start xs:items-center w-full gap-2 xs:gap-0">
                     <div className="min-w-0">

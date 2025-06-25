@@ -177,7 +177,7 @@ const Sidebar = React.forwardRef<
     },
     ref
   ) => {
-    const { isMobile, state, openMobile, setOpenMobile } = useSidebar()
+    const { isMobile, openMobile, state } = useSidebar();
 
     if (collapsible === "none") {
       return (
@@ -194,69 +194,39 @@ const Sidebar = React.forwardRef<
       )
     }
 
-    // Only render the sidebar on mobile if openMobile is true
+    // On mobile, always show the menu icon, and toggle only the content
     if (isMobile) {
-      if (!openMobile) return null;
       return (
-        <Sheet open={openMobile} onOpenChange={setOpenMobile} {...props}>
-          <SheetContent
-            data-sidebar="sidebar"
-            data-mobile="true"
-            className="w-full max-w-[90vw] bg-sidebar p-3 md:p-4 text-sidebar-foreground z-50 focus:outline-none"
-            style={{
-              "--sidebar-width": SIDEBAR_WIDTH_MOBILE,
-            } as React.CSSProperties}
-            side={side}
-          >
-            <div className="flex h-full w-full flex-col">{children}</div>
-          </SheetContent>
-        </Sheet>
-      )
+        <div className="fixed top-0 left-0 w-full z-50 md:hidden pointer-events-none">
+          <div className="absolute top-3 left-3 pointer-events-auto">
+            <SidebarTrigger />
+          </div>
+          {openMobile && (
+            <div className="w-full max-w-[90vw] bg-sidebar p-3 md:p-4 text-sidebar-foreground shadow-lg mt-12 rounded-b-xl transition-all duration-200 pointer-events-auto">
+              <div className="flex h-full w-full flex-col">
+                {children}
+              </div>
+            </div>
+          )}
+        </div>
+      );
     }
 
+    // On desktop, always show the menu icon, and toggle only the content
     return (
-      <div
-        ref={ref}
-        className="group peer hidden lg:block text-sidebar-foreground"
-        data-state={state}
-        data-collapsible={state === "collapsed" ? collapsible : ""}
-        data-variant={variant}
-        data-side={side}
-      >
-        {/* This is what handles the sidebar gap on desktop */}
-        <div
-          className={cn(
-            "duration-200 relative h-svh w-[--sidebar-width] bg-transparent transition-[width] ease-linear",
-            "group-data-[collapsible=offcanvas]:w-0",
-            "group-data-[side=right]:rotate-180",
-            variant === "floating" || variant === "inset"
-              ? "group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)_+_theme(spacing.4))]"
-              : "group-data-[collapsible=icon]:w-[--sidebar-width-icon]"
-          )}
-        />
-        <div
-          className={cn(
-            "duration-200 fixed inset-y-0 z-10 hidden h-svh w-[--sidebar-width] transition-[left,right,width] ease-linear lg:flex",
-            side === "left"
-              ? "left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]"
-              : "right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]",
-            // Adjust the padding for floating and inset variants.
-            variant === "floating" || variant === "inset"
-              ? "p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)_+_theme(spacing.4)_+2px)]"
-              : "group-data-[collapsible=icon]:w-[--sidebar-width-icon] group-data-[side=left]:border-r group-data-[side=right]:border-l",
-            className
-          )}
-          {...props}
-        >
-          <div
-            data-sidebar="sidebar"
-            className="flex h-full w-full flex-col bg-sidebar group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:border group-data-[variant=floating]:border-sidebar-border group-data-[variant=floating]:shadow"
-          >
+      <div className="fixed top-0 left-0 h-full z-40 hidden md:block pointer-events-none">
+        <div className="absolute top-3 left-3 pointer-events-auto">
+          <SidebarTrigger />
+        </div>
+        {state === "expanded" && (
+          <div className="h-full w-[16rem] bg-sidebar text-sidebar-foreground shadow-lg mt-12 rounded-r-xl transition-all duration-200 pointer-events-auto">
+            <div className="flex h-full w-full flex-col">
             {children}
           </div>
         </div>
+        )}
       </div>
-    )
+    );
   }
 )
 Sidebar.displayName = "Sidebar"
@@ -739,17 +709,14 @@ SidebarMenuSubButton.displayName = "SidebarMenuSubButton"
 
 const CustomSidebarContent = () => {
   const { user, signOut, updateProfile } = useAuth();
+  const { state } = useSidebar();
   const [showProfileDialog, setShowProfileDialog] = React.useState(false);
   const [profile, setProfile] = React.useState({
     name: user?.user_metadata?.display_name || "",
     mobile: user?.user_metadata?.phone || "",
   });
   const [saving, setSaving] = React.useState(false);
-  const [collapsed, setCollapsed] = React.useState(false);
   const navigate = useNavigate();
-
-  // Handle sidebar collapse/expand
-  const handleToggleSidebar = () => setCollapsed((c) => !c);
 
   // Save profile to database
   const handleProfileSave = async () => {
@@ -764,16 +731,11 @@ const CustomSidebarContent = () => {
     }
   };
 
+  // Use sidebar context state for collapsed/expanded
+  const collapsed = state === "collapsed";
+
   return (
-    <div className={`flex flex-col h-full transition-all duration-300 bg-sidebar text-sidebar-foreground z-10 shadow-lg ${collapsed ? 'w-20' : 'w-64'} md:relative fixed md:static top-0 left-0 min-h-screen overflow-y-auto`}>
-      {/* Collapse/Expand Button */}
-      <button
-        className="p-3 focus:outline-none self-end md:self-auto min-h-[44px] min-w-[44px]"
-        onClick={handleToggleSidebar}
-        aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-      >
-        <PanelLeft className="w-7 h-7 text-gray-400" />
-      </button>
+    <div className={`flex flex-col h-full transition-all duration-300 bg-sidebar text-sidebar-foreground shadow-lg w-full pb-8`}>
       {/* Profile Section */}
       <div className={`flex flex-col items-center mb-8 mt-4 gap-y-2 ${collapsed ? 'hidden' : ''}`}>
         <div
@@ -791,7 +753,7 @@ const CustomSidebarContent = () => {
         </Button>
       </div>
       {/* Navigation */}
-      <nav className="flex flex-col gap-y-2 flex-1 w-full">
+      <nav className="flex flex-col gap-y-2 w-full">
         <Button variant="ghost" className="justify-start min-h-[44px] min-w-[44px] w-full text-left" onClick={() => navigate("/")} aria-label="Home"> {/* Home Button */}
           <Home className="mr-2" /> {!collapsed && "Home"}
         </Button>
@@ -799,8 +761,8 @@ const CustomSidebarContent = () => {
           <PanelLeft className="mr-2" /> {!collapsed && "Dashboard"}
         </Button>
       </nav>
-      {/* Actions */}
-      <div className={`flex flex-col gap-y-2 mt-auto mb-4 w-full ${collapsed ? 'items-center' : ''}`}>
+      {/* Actions - moved directly below navigation */}
+      <div className={`flex flex-col gap-y-2 w-full ${collapsed ? 'items-center' : ''} mt-4`}>
         <Button variant="outline" className="min-h-[44px] min-w-[44px] w-full" onClick={signOut} aria-label="Logout">{!collapsed && "Logout"}</Button>
         <Button variant="destructive" className="min-h-[44px] min-w-[44px] w-full" onClick={() => {}} aria-label="Delete Account">{!collapsed && "Delete Account"}</Button>
       </div>

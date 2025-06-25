@@ -14,7 +14,7 @@ import Dashboard from "./pages/Dashboard";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
 import NotFound from "./pages/NotFound";
-import { SidebarProvider, Sidebar, CustomSidebarContent, SidebarTrigger } from "@/components/ui/sidebar";
+import { SidebarProvider, Sidebar, CustomSidebarContent, SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
 
 const queryClient = new QueryClient();
 
@@ -22,14 +22,22 @@ function AppLayout() {
   const location = useLocation();
   const { user } = useAuth();
   const hideSidebar = ["/signin", "/signup"].includes(location.pathname) || (location.pathname === "/" && !user);
+
+  // Custom hook to access sidebar context
+  function MobileSidebarTrigger() {
+    const { isMobile, openMobile } = useSidebar();
+    if (!isMobile || openMobile) return null;
+    return (
+      <div className="fixed top-4 left-4 z-50 md:hidden">
+        <SidebarTrigger />
+      </div>
+    );
+  }
+
   return (
     <SidebarProvider>
-      {/* Floating sidebar trigger for mobile */}
-      {!hideSidebar && (
-        <div className="fixed top-4 left-4 z-50 md:hidden">
-          <SidebarTrigger />
-        </div>
-      )}
+      {/* Floating sidebar trigger for mobile, only when sidebar is closed */}
+      {!hideSidebar && <MobileSidebarTrigger />}
       <div className="flex flex-col md:flex-row min-h-screen w-full overflow-x-hidden">
         {!hideSidebar && (
           <Sidebar>
