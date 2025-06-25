@@ -343,9 +343,9 @@ const Trips = () => {
             </CardContent>
           </Card>
         ) : (
-          <div className="flex flex-col gap-6 sm:grid sm:grid-cols-2 lg:grid-cols-3">
+          <div className="flex flex-col w-full gap-6 sm:grid sm:grid-cols-2 lg:grid-cols-3">
             {trips.map((trip) => (
-              <Card key={trip.id} className="netflix-card-hover w-full max-w-full sm:max-w-none overflow-hidden mx-auto">
+              <Card key={trip.id} className="netflix-card-hover w-full sm:max-w-none overflow-hidden">
                 <CardHeader>
                   <div className="flex flex-col xs:flex-row justify-between items-start xs:items-center w-full gap-2 xs:gap-0">
                     <div className="min-w-0">
@@ -426,82 +426,4 @@ const Trips = () => {
                         <span className="text-sm">{trip.participants.length} participants</span>
                       </div>
                       <Button
-                        onClick={() => navigate(`/trips/shared/${trip.id}`)}
-                        variant="destructive"
-                        className="w-full mt-4"
-                      >
-                        <span className="truncate">View as Viewer</span>
-                      </Button>
-                    </CardContent>
-                  </Card>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
-        {/* Custom Delete Confirmation Dialog */}
-        {showDeleteDialog && tripToDelete && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-2">
-            <Card className="netflix-card max-w-md w-full mx-4 overflow-y-auto max-h-[90vh]">
-              <CardHeader>
-                <CardTitle className="text-white flex items-center gap-2 text-lg sm:text-xl">
-                  <Trash2 className="h-5 w-5 text-red-400" />
-                  <span className="truncate">Delete Trip</span>
-                </CardTitle>
-                <CardDescription className="text-gray-300 text-sm sm:text-base">
-                  Are you sure you want to delete this trip?
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="bg-red-900/20 border border-red-600/30 rounded-lg p-4">
-                  <h4 className="text-white font-semibold mb-2 truncate">
-                    "{tripToDelete.name}"
-                  </h4>
-                  <p className="text-gray-300 text-sm mb-3">
-                    This will permanently delete:
-                  </p>
-                  <ul className="text-gray-300 text-sm space-y-1">
-                    <li>• The trip and all its data</li>
-                    <li>• All expenses recorded for this trip</li>
-                    <li>• All payment records</li>
-                  </ul>
-                  <p className="text-red-400 text-sm font-medium mt-3">
-                    This action cannot be undone.
-                  </p>
-                </div>
-                <div className="flex flex-col sm:flex-row gap-3">
-                  <Button
-                    onClick={confirmDeleteTrip}
-                    variant="destructive"
-                    className="flex-1 w-full sm:w-auto"
-                    disabled={deletingTripId === tripToDelete.id}
-                  >
-                    {deletingTripId === tripToDelete.id ? (
-                      <div className="flex items-center gap-2">
-                        <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                        <span className="truncate">Deleting...</span>
-                      </div>
-                    ) : (
-                      <span className="truncate">Delete Trip</span>
-                    )}
-                  </Button>
-                  <Button
-                    onClick={cancelDeleteTrip}
-                    variant="netflix-secondary"
-                    className="flex-1 w-full sm:w-auto"
-                    disabled={deletingTripId === tripToDelete.id}
-                  >
-                    <span className="truncate">Cancel</span>
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
-
-export default Trips; 
+                        onClick={() => navigate(`
