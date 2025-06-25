@@ -8,7 +8,7 @@ const Pagination = ({ className, ...props }: React.ComponentProps<"nav">) => (
   <nav
     role="navigation"
     aria-label="pagination"
-    className={cn("mx-auto flex w-full justify-center", className)}
+    className={cn("mx-auto flex w-full justify-center px-2 md:px-0 py-2 md:py-0", className)}
     {...props}
   />
 )
@@ -20,7 +20,7 @@ const PaginationContent = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <ul
     ref={ref}
-    className={cn("flex flex-row items-center gap-1", className)}
+    className={cn("flex flex-nowrap overflow-x-auto items-center gap-1 md:gap-2", className)}
     {...props}
   />
 ))
@@ -30,7 +30,7 @@ const PaginationItem = React.forwardRef<
   HTMLLIElement,
   React.ComponentProps<"li">
 >(({ className, ...props }, ref) => (
-  <li ref={ref} className={cn("", className)} {...props} />
+  <li ref={ref} className={cn("min-w-[44px] min-h-[44px]", className)} {...props} />
 ))
 PaginationItem.displayName = "PaginationItem"
 
@@ -52,6 +52,7 @@ const PaginationLink = ({
         variant: isActive ? "outline" : "ghost",
         size,
       }),
+      "min-w-[44px] min-h-[44px] text-base md:text-lg rounded",
       className
     )}
     {...props}
@@ -66,7 +67,7 @@ const PaginationPrevious = ({
   <PaginationLink
     aria-label="Go to previous page"
     size="default"
-    className={cn("gap-1 pl-2.5", className)}
+    className={cn("gap-1 pl-2 md:pl-4 py-2 text-base md:text-lg min-h-[44px]", className)}
     {...props}
   >
     <ChevronLeft className="h-4 w-4" />
@@ -82,7 +83,7 @@ const PaginationNext = ({
   <PaginationLink
     aria-label="Go to next page"
     size="default"
-    className={cn("gap-1 pr-2.5", className)}
+    className={cn("gap-1 pr-2 md:pr-4 py-2 text-base md:text-lg min-h-[44px]", className)}
     {...props}
   >
     <span>Next</span>
@@ -97,7 +98,7 @@ const PaginationEllipsis = ({
 }: React.ComponentProps<"span">) => (
   <span
     aria-hidden
-    className={cn("flex h-9 w-9 items-center justify-center", className)}
+    className={cn("flex h-9 w-9 min-w-[44px] min-h-[44px] items-center justify-center", className)}
     {...props}
   >
     <MoreHorizontal className="h-4 w-4" />

@@ -206,16 +206,16 @@ const Trips = () => {
 
   return (
     <div className="min-h-screen netflix-gradient">
-      <div className="responsive-container py-4 sm:py-6 md:py-8">
+      <div className="responsive-container py-4 sm:py-6 md:py-8 px-2 sm:px-4">
         <div className="mb-4 sm:mb-6 animate-fade-in">
           <Link to="/" className="text-white hover:text-red-400 flex items-center gap-2 text-sm sm:text-base transition-colors">
             <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5" />
-            Back to Home
+            <span className="truncate">Back to Home</span>
           </Link>
         </div>
 
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 gap-4 sm:gap-2 flex-wrap">
-          <h1 className="text-white text-2xl sm:text-3xl font-bold">My Trips</h1>
+          <h1 className="text-white text-2xl sm:text-3xl font-bold truncate">My Trips</h1>
           <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto flex-wrap">
             <Button
               onClick={() => setShowCreateForm(true)}
@@ -223,14 +223,14 @@ const Trips = () => {
               className="flex items-center gap-2 w-full sm:w-auto min-w-0"
             >
               <Plus className="h-4 w-4" />
-              New Trip
+              <span className="truncate">New Trip</span>
             </Button>
             <Button
               onClick={() => setShowJoinInput((v) => !v)}
               variant="netflix-secondary"
               className="flex items-center gap-2 w-full sm:w-auto min-w-0"
             >
-              Join Trip by Link
+              <span className="truncate">Join Trip by Link</span>
             </Button>
           </div>
         </div>
@@ -244,16 +244,16 @@ const Trips = () => {
               className="bg-gray-800 border-gray-600 text-white placeholder-gray-400 flex-1 w-full sm:w-auto min-w-0"
             />
             <Button onClick={handleJoinTrip} variant="netflix" className="w-full sm:w-auto min-w-0">
-              Join
+              <span className="truncate">Join</span>
             </Button>
           </div>
         )}
 
         {showCreateForm && (
-          <Card className="netflix-card mb-8">
+          <Card className="netflix-card mb-8 w-full max-w-lg mx-auto">
             <CardHeader>
-              <CardTitle className="text-white">Create New Trip</CardTitle>
-              <CardDescription className="text-gray-300">
+              <CardTitle className="text-white text-lg sm:text-xl">Create New Trip</CardTitle>
+              <CardDescription className="text-gray-300 text-sm sm:text-base">
                 Set up a new trip with participants
               </CardDescription>
             </CardHeader>
@@ -280,7 +280,7 @@ const Trips = () => {
                     onKeyPress={(e) => e.key === 'Enter' && handleAddParticipant()}
                   />
                   <Button onClick={handleAddParticipant} variant="netflix-secondary" className="w-full sm:w-auto min-w-0">
-                    Add
+                    <span className="truncate">Add</span>
                   </Button>
                 </div>
                 {newTrip.participants.length > 0 && (
@@ -288,9 +288,9 @@ const Trips = () => {
                     {newTrip.participants.map((participant, index) => (
                       <div
                         key={index}
-                        className="bg-red-600/20 text-white px-3 py-1 rounded-full flex items-center gap-2"
+                        className="bg-red-600/20 text-white px-3 py-1 rounded-full flex items-center gap-2 max-w-full"
                       >
-                        <span>{participant}</span>
+                        <span className="truncate max-w-[120px] sm:max-w-none">{participant}</span>
                         <button
                           onClick={() => handleRemoveParticipant(index)}
                           className="text-red-300 hover:text-white"
@@ -309,7 +309,7 @@ const Trips = () => {
                   variant="netflix"
                   className="flex-1 w-full sm:w-auto min-w-0"
                 >
-                  Create Trip
+                  <span className="truncate">Create Trip</span>
                 </Button>
                 <Button
                   onClick={() => {
@@ -319,7 +319,7 @@ const Trips = () => {
                   variant="netflix-secondary"
                   className="flex-1 w-full sm:w-auto min-w-0"
                 >
-                  Cancel
+                  <span className="truncate">Cancel</span>
                 </Button>
               </div>
             </CardContent>
@@ -327,7 +327,7 @@ const Trips = () => {
         )}
 
         {trips.length === 0 ? (
-          <Card className="netflix-card">
+          <Card className="netflix-card w-full max-w-md mx-auto">
             <CardContent className="text-center py-12">
               <Users className="h-16 w-16 text-gray-400 mx-auto mb-4" />
               <h3 className="text-white text-xl font-semibold mb-2">No trips yet</h3>
@@ -338,23 +338,23 @@ const Trips = () => {
                 className="flex items-center gap-2 mx-auto w-full sm:w-auto"
               >
                 <Plus className="h-4 w-4" />
-                Create Your First Trip
+                <span className="truncate">Create Your First Trip</span>
               </Button>
             </CardContent>
           </Card>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {trips.map((trip) => (
-              <Card key={trip.id} className="netflix-card-hover w-full max-w-xs sm:max-w-none overflow-hidden mx-auto">
+              <Card key={trip.id} className="netflix-card-hover w-full max-w-full sm:max-w-none overflow-hidden mx-auto">
                 <CardHeader>
-                  <div className="flex justify-between items-start w-full">
-                    <div>
-                      <CardTitle className="text-white text-lg">{trip.name}</CardTitle>
+                  <div className="flex flex-col xs:flex-row justify-between items-start xs:items-center w-full gap-2 xs:gap-0">
+                    <div className="min-w-0">
+                      <CardTitle className="text-white text-lg truncate max-w-[180px] sm:max-w-none">{trip.name}</CardTitle>
                       <CardDescription className="text-gray-300">
                         {trip.participants.length} participants
                       </CardDescription>
                     </div>
-                    <div className="flex gap-1 flex-wrap min-w-0">
+                    <div className="flex gap-1 flex-wrap min-w-0 mt-2 xs:mt-0">
                       <Button
                         variant="netflix-secondary"
                         size="sm"
@@ -383,9 +383,9 @@ const Trips = () => {
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  <div className="flex items-center gap-2 text-gray-300">
+                  <div className="flex flex-wrap items-center gap-2 text-gray-300 break-words">
                     <Users className="h-4 w-4" />
-                    <span className="text-sm">{trip.participants.join(", ")}</span>
+                    <span className="text-sm truncate max-w-[180px] sm:max-w-none">{trip.participants.join(", ")}</span>
                   </div>
                   <div className="flex items-center gap-2 text-gray-300">
                     <DollarSign className="h-4 w-4" />
@@ -400,7 +400,7 @@ const Trips = () => {
                     variant="netflix"
                     className="w-full mt-4"
                   >
-                    Manage Trip
+                    <span className="truncate">Manage Trip</span>
                   </Button>
                 </CardContent>
               </Card>
@@ -412,14 +412,14 @@ const Trips = () => {
         {viewedTrips.length > 0 && (
           <div className="mt-12">
             <h2 className="text-white text-2xl font-bold mb-4">Trips I Viewed</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {viewedTrips.map((v) => {
                 const trip = v.trip;
                 if (!trip) return null;
                 return (
-                  <Card key={trip.id} className="netflix-card-hover">
+                  <Card key={trip.id} className="netflix-card-hover w-full max-w-full sm:max-w-none mx-auto">
                     <CardHeader>
-                      <CardTitle className="text-white text-lg">{trip.name}</CardTitle>
+                      <CardTitle className="text-white text-lg truncate max-w-[180px] sm:max-w-none">{trip.name}</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-3">
                       <div className="flex items-center gap-2 text-gray-300">
@@ -430,7 +430,7 @@ const Trips = () => {
                         variant="destructive"
                         className="w-full mt-4"
                       >
-                        View as Viewer
+                        <span className="truncate">View as Viewer</span>
                       </Button>
                     </CardContent>
                   </Card>
@@ -442,20 +442,20 @@ const Trips = () => {
 
         {/* Custom Delete Confirmation Dialog */}
         {showDeleteDialog && tripToDelete && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-            <Card className="netflix-card max-w-md w-full mx-4">
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-2">
+            <Card className="netflix-card max-w-md w-full mx-4 overflow-y-auto max-h-[90vh]">
               <CardHeader>
-                <CardTitle className="text-white flex items-center gap-2">
+                <CardTitle className="text-white flex items-center gap-2 text-lg sm:text-xl">
                   <Trash2 className="h-5 w-5 text-red-400" />
-                  Delete Trip
+                  <span className="truncate">Delete Trip</span>
                 </CardTitle>
-                <CardDescription className="text-gray-300">
+                <CardDescription className="text-gray-300 text-sm sm:text-base">
                   Are you sure you want to delete this trip?
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="bg-red-900/20 border border-red-600/30 rounded-lg p-4">
-                  <h4 className="text-white font-semibold mb-2">
+                  <h4 className="text-white font-semibold mb-2 truncate">
                     "{tripToDelete.name}"
                   </h4>
                   <p className="text-gray-300 text-sm mb-3">
@@ -470,30 +470,29 @@ const Trips = () => {
                     This action cannot be undone.
                   </p>
                 </div>
-                
-                <div className="flex gap-3">
+                <div className="flex flex-col sm:flex-row gap-3">
                   <Button
                     onClick={confirmDeleteTrip}
                     variant="destructive"
-                    className="flex-1"
+                    className="flex-1 w-full sm:w-auto"
                     disabled={deletingTripId === tripToDelete.id}
                   >
                     {deletingTripId === tripToDelete.id ? (
                       <div className="flex items-center gap-2">
                         <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                        Deleting...
+                        <span className="truncate">Deleting...</span>
                       </div>
                     ) : (
-                      "Delete Trip"
+                      <span className="truncate">Delete Trip</span>
                     )}
                   </Button>
                   <Button
                     onClick={cancelDeleteTrip}
                     variant="netflix-secondary"
-                    className="flex-1"
+                    className="flex-1 w-full sm:w-auto"
                     disabled={deletingTripId === tripToDelete.id}
                   >
-                    Cancel
+                    <span className="truncate">Cancel</span>
                   </Button>
                 </div>
               </CardContent>

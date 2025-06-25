@@ -19,7 +19,7 @@ const BreadcrumbList = React.forwardRef<
   <ol
     ref={ref}
     className={cn(
-      "flex flex-wrap items-center gap-1.5 break-words text-sm text-muted-foreground sm:gap-2.5",
+      "flex flex-nowrap overflow-x-auto items-center gap-1.5 md:gap-2.5 break-words whitespace-nowrap text-xs md:text-sm text-muted-foreground",
       className
     )}
     {...props}
@@ -33,7 +33,7 @@ const BreadcrumbItem = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <li
     ref={ref}
-    className={cn("inline-flex items-center gap-1.5", className)}
+    className={cn("inline-flex items-center gap-1.5 min-w-[44px]", className)}
     {...props}
   />
 ))
@@ -50,7 +50,7 @@ const BreadcrumbLink = React.forwardRef<
   return (
     <Comp
       ref={ref}
-      className={cn("transition-colors hover:text-foreground", className)}
+      className={cn("transition-colors hover:text-foreground text-xs md:text-sm font-medium md:font-normal truncate min-w-[44px]", className)}
       {...props}
     />
   )
@@ -66,7 +66,7 @@ const BreadcrumbPage = React.forwardRef<
     role="link"
     aria-disabled="true"
     aria-current="page"
-    className={cn("font-normal text-foreground", className)}
+    className={cn("font-medium md:font-normal text-xs md:text-sm text-foreground truncate min-w-[44px]", className)}
     {...props}
   />
 ))
@@ -95,7 +95,7 @@ const BreadcrumbEllipsis = ({
   <span
     role="presentation"
     aria-hidden="true"
-    className={cn("flex h-9 w-9 items-center justify-center", className)}
+    className={cn("flex h-9 w-9 min-w-[44px] min-h-[44px] items-center justify-center", className)}
     {...props}
   >
     <MoreHorizontal className="h-4 w-4" />

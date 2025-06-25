@@ -5,7 +5,7 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-all duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 min-h-[44px] min-w-[44px] transform hover:scale-105 active:scale-95",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-base md:text-lg font-medium ring-offset-background transition-all duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-5 md:[&_svg]:size-6 [&_svg]:shrink-0 min-h-[44px] min-w-[44px] transform hover:scale-105 active:scale-95",
   {
     variants: {
       variant: {
@@ -25,13 +25,13 @@ const buttonVariants = cva(
         "netflix-secondary": "border-2 border-white bg-transparent text-white hover:bg-white hover:text-black shadow-md hover:shadow-lg",
       },
       size: {
-        default: "h-11 px-6 py-3 text-base",
-        sm: "h-10 px-4 py-2 text-sm rounded-md",
-        lg: "h-12 px-8 py-4 text-lg rounded-xl",
-        xl: "h-14 px-10 py-5 text-xl rounded-xl",
-        icon: "h-11 w-11",
-        "icon-sm": "h-10 w-10",
-        "icon-lg": "h-12 w-12",
+        default: "h-11 md:h-12 px-4 md:px-6 py-3 text-base md:text-lg rounded-md min-h-[44px] min-w-[44px]",
+        sm: "h-10 md:h-11 px-3 md:px-4 py-2 text-sm md:text-base rounded-md min-h-[44px] min-w-[44px]",
+        lg: "h-12 md:h-14 px-6 md:px-8 py-4 text-lg md:text-xl rounded-xl min-h-[44px] min-w-[44px]",
+        xl: "h-14 md:h-16 px-8 md:px-10 py-5 text-xl md:text-2xl rounded-xl min-h-[44px] min-w-[44px]",
+        icon: "h-11 md:h-12 w-11 md:w-12 min-h-[44px] min-w-[44px]",
+        "icon-sm": "h-10 md:h-11 w-10 md:w-11 min-h-[44px] min-w-[44px]",
+        "icon-lg": "h-12 md:h-14 w-12 md:w-14 min-h-[44px] min-w-[44px]",
       },
     },
     defaultVariants: {
