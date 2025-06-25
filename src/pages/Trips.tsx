@@ -426,4 +426,22 @@ const Trips = () => {
                         <span className="text-sm">{trip.participants.length} participants</span>
                       </div>
                       <Button
-                        onClick={() => navigate(`
+                        onClick={() => navigate(`/trips/shared/${trip.id}`)}
+                        variant="destructive"
+                        className="w-full mt-4"
+                      >
+                        <span className="truncate">View as Viewer</span>
+                      </Button>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default Trips;
