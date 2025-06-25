@@ -343,7 +343,7 @@ const Trips = () => {
             </CardContent>
           </Card>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="flex flex-col gap-6 sm:grid sm:grid-cols-2 lg:grid-cols-3">
             {trips.map((trip) => (
               <Card key={trip.id} className="netflix-card-hover w-full max-w-full sm:max-w-none overflow-hidden mx-auto">
                 <CardHeader>
