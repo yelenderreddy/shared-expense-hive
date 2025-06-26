@@ -55,6 +55,8 @@ const SidebarProvider = React.forwardRef<
     defaultOpen?: boolean
     open?: boolean
     onOpenChange?: (open: boolean) => void
+    openMobile?: boolean
+    setOpenMobile?: (open: boolean) => void
   }
 >(
   (
@@ -65,12 +67,27 @@ const SidebarProvider = React.forwardRef<
       className,
       style,
       children,
+      openMobile: openMobileProp,
+      setOpenMobile: setOpenMobileProp,
       ...props
     },
     ref
   ) => {
     const isMobile = useIsMobile()
-    const [openMobile, setOpenMobile] = React.useState(false)
+    const [internalOpenMobile, internalSetOpenMobile] = React.useState(false)
+    const openMobile = openMobileProp !== undefined ? openMobileProp : internalOpenMobile;
+    const setOpenMobile = setOpenMobileProp !== undefined ? setOpenMobileProp : internalSetOpenMobile;
+
+    // Debug: log when openMobile changes
+    React.useEffect(() => {
+      console.log('[SidebarProvider] openMobile state:', openMobile);
+    }, [openMobile]);
+
+    // Patch setOpenMobile to log state changes
+    const setOpenMobileWithLog = (value) => {
+      console.log('[SidebarProvider] setOpenMobile called with:', value);
+      setOpenMobile(value);
+    };
 
     // This is the internal state of the sidebar.
     // We use openProp and setOpenProp for control from outside the component.
@@ -125,10 +142,10 @@ const SidebarProvider = React.forwardRef<
         setOpen,
         isMobile,
         openMobile,
-        setOpenMobile,
+        setOpenMobile: setOpenMobileWithLog,
         toggleSidebar,
       }),
-      [state, open, setOpen, isMobile, openMobile, setOpenMobile, toggleSidebar]
+      [state, open, setOpen, isMobile, openMobile, setOpenMobileWithLog, toggleSidebar]
     )
 
     return (
@@ -177,7 +194,7 @@ const Sidebar = React.forwardRef<
     },
     ref
   ) => {
-    const { isMobile, openMobile, state } = useSidebar();
+    const { isMobile, openMobile, setOpenMobile, state } = useSidebar();
 
     if (collapsible === "none") {
       return (
@@ -196,18 +213,21 @@ const Sidebar = React.forwardRef<
 
     // On mobile, always show the menu icon, and toggle only the content
     if (isMobile) {
+      if (!openMobile) return null;
       return (
         <div className="fixed top-0 left-0 w-full z-50 md:hidden pointer-events-none">
-          <div className="absolute top-3 left-3 pointer-events-auto">
-            <SidebarTrigger />
-          </div>
-          {openMobile && (
-            <div className="w-full max-w-[90vw] bg-sidebar p-3 md:p-4 text-sidebar-foreground shadow-lg mt-12 rounded-b-xl transition-all duration-200 pointer-events-auto">
-              <div className="flex h-full w-full flex-col">
-                {children}
-              </div>
+          <div className="w-full max-w-[90vw] bg-sidebar p-3 md:p-4 text-sidebar-foreground shadow-lg mt-12 rounded-b-xl transition-all duration-200 pointer-events-auto relative">
+            <button
+              className="absolute top-4 right-4 z-50 bg-red-600 text-white rounded-full p-2"
+              onClick={() => setOpenMobile(false)}
+              aria-label="Close sidebar"
+            >
+              ✕
+            </button>
+            <div className="flex h-full w-full flex-col">
+              {children}
             </div>
-          )}
+          </div>
         </div>
       );
     }

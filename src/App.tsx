@@ -15,6 +15,8 @@ import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
 import NotFound from "./pages/NotFound";
 import { SidebarProvider, Sidebar, CustomSidebarContent, SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
+import { Menu } from "lucide-react";
+import React from "react";
 
 const queryClient = new QueryClient();
 
@@ -23,20 +25,43 @@ function AppLayout() {
   const { user } = useAuth();
   const hideSidebar = ["/signin", "/signup"].includes(location.pathname) || (location.pathname === "/" && !user);
 
-  // Custom hook to access sidebar context
+  // Sidebar open state lifted to AppLayout
+  const [openMobile, setOpenMobile] = React.useState(false);
+
   function MobileSidebarTrigger() {
-    const { isMobile, openMobile } = useSidebar();
-    if (!isMobile || openMobile) return null;
+    // Robust client-only mobile detection
+    const [isMobile, setIsMobile] = React.useState(false);
+    React.useEffect(() => {
+      const checkMobile = () => {
+        setIsMobile(window.innerWidth < 1024); // lg breakpoint
+      };
+      checkMobile();
+      window.addEventListener('resize', checkMobile);
+      return () => window.removeEventListener('resize', checkMobile);
+    }, []);
+    // Debug log
+    React.useEffect(() => {
+      console.log('MobileSidebarTrigger isMobile:', isMobile);
+    }, [isMobile]);
+    // Always render the menu icon on mobile
     return (
-      <div className="fixed top-4 left-4 z-50 md:hidden">
-        <SidebarTrigger />
-      </div>
+      <button
+        type="button"
+        className="lg:hidden fixed top-3 left-3 z-[9999] p-2 bg-red-600 text-white border-4 border-yellow-400 rounded-full shadow-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+        aria-label="Open menu"
+        style={{ display: isMobile ? 'block' : 'none', pointerEvents: 'auto' }}
+        onClick={() => {
+          setOpenMobile(true);
+        }}
+      >
+        <Menu className="w-7 h-7" />
+      </button>
     );
   }
 
   return (
-    <SidebarProvider>
-      {/* Floating sidebar trigger for mobile, only when sidebar is closed */}
+    <SidebarProvider openMobile={openMobile} setOpenMobile={setOpenMobile}>
+      {/* Floating sidebar trigger for mobile, always visible when sidebar is not hidden */}
       {!hideSidebar && <MobileSidebarTrigger />}
       <div className="flex flex-col md:flex-row min-h-screen w-full overflow-x-hidden">
         {!hideSidebar && (

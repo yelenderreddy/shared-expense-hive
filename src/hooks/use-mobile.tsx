@@ -15,5 +15,6 @@ export function useIsMobile() {
     return () => mql.removeEventListener("change", onChange)
   }, [])
 
-  return !!isMobile
+  // Note: isMobile is undefined on first render. Consumers should check for undefined and not render mobile/desktop-specific UI until it's a boolean.
+  return isMobile;
 }

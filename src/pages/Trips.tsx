@@ -8,7 +8,6 @@ import { toast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { getTripsByUser, createTrip, deleteTrip, Trip, getViewedTripsByUser } from "@/lib/database";
 import { ArrowLeft, Plus, Users, Calendar, DollarSign, Trash2, Edit } from "lucide-react";
-import { SidebarTrigger } from "@/components/ui/sidebar";
 
 const Trips = () => {
   const [trips, setTrips] = useState<Trip[]>([]);
@@ -210,9 +209,7 @@ const Trips = () => {
       <div className="responsive-container py-4 sm:py-6 md:py-8 px-2 sm:px-4">
         <div className="mb-4 sm:mb-6 animate-fade-in w-full">
           <div className="flex flex-row items-center w-full min-w-0">
-            <div className="w-10 flex-shrink-0 z-50 bg-red-500">
-              <SidebarTrigger />
-            </div>
+            <div className="w-10 flex-shrink-0 z-50" />
             <Link
               to="/"
               className="flex-1 text-white hover:text-red-400 flex items-center gap-2 text-sm sm:text-base transition-colors truncate justify-end"
