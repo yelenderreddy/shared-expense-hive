@@ -741,7 +741,7 @@ const SidebarMenuSubButton = React.forwardRef<
 SidebarMenuSubButton.displayName = "SidebarMenuSubButton"
 
 const CustomSidebarContent = () => {
-  const { user, signOut, updateProfile } = useAuth();
+  const { user, signOut, updateProfile, deleteAccount } = useAuth();
   const { state } = useSidebar();
   const [showProfileDialog, setShowProfileDialog] = React.useState(false);
   const [profile, setProfile] = React.useState({
@@ -749,6 +749,8 @@ const CustomSidebarContent = () => {
     mobile: user?.user_metadata?.phone || "",
   });
   const [saving, setSaving] = React.useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = React.useState(false);
+  const [deleting, setDeleting] = React.useState(false);
   const navigate = useNavigate();
 
   // Save profile to database
@@ -797,7 +799,7 @@ const CustomSidebarContent = () => {
       {/* Actions - moved directly below navigation */}
       <div className={`flex flex-col gap-y-2 w-full ${collapsed ? 'items-center' : ''} mt-4`}>
         <Button variant="outline" className="min-h-[44px] min-w-[44px] w-full" onClick={signOut} aria-label="Logout">{!collapsed && "Logout"}</Button>
-        <Button variant="destructive" className="min-h-[44px] min-w-[44px] w-full" onClick={() => {}} aria-label="Delete Account">{!collapsed && "Delete Account"}</Button>
+        <Button variant="destructive" className="min-h-[44px] min-w-[44px] w-full" onClick={() => setShowDeleteDialog(true)} aria-label="Delete Account">{!collapsed && "Delete Account"}</Button>
       </div>
       {/* Profile Edit Dialog */}
       <Dialog open={showProfileDialog} onOpenChange={setShowProfileDialog}>
@@ -822,6 +824,35 @@ const CustomSidebarContent = () => {
           </div>
         </DialogContent>
       </Dialog>
+      {/* Delete Account Confirmation Dialog */}
+      {showDeleteDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-[#141414] rounded-lg shadow-lg p-6 max-w-sm w-full border border-red-600">
+            <h2 className="text-lg font-bold mb-4 text-white">Delete Account</h2>
+            <p className="mb-6 text-white">
+              Are you sure you want to <span className="text-red-400 font-semibold">delete your account</span>? This will remove all your trips, expenses, and data. This action cannot be undone.
+            </p>
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setShowDeleteDialog(false)} className="border-red-600 text-red-600 hover:bg-red-600/10">Cancel</Button>
+              <Button variant="destructive" onClick={async () => {
+                setDeleting(true);
+                const { error } = await deleteAccount();
+                setDeleting(false);
+                setShowDeleteDialog(false);
+                if (error) {
+                  toast({ title: "Error", description: error.message || error, variant: "destructive" });
+                } else {
+                  toast({ title: "Account Deleted", description: "Your account and all data have been deleted." });
+                  signOut();
+                  navigate("/");
+                }
+              }} disabled={deleting} className="bg-red-600 text-white hover:bg-red-700">
+                {deleting ? "Deleting..." : "Delete"}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

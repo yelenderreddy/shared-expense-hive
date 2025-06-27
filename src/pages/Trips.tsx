@@ -351,18 +351,18 @@ const Trips = () => {
             </CardContent>
           </Card>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6 w-full">
+          <div className="card-grid w-full">
             {trips.map((trip) => (
               <Card key={trip.id} className="w-full overflow-hidden">
                 <CardHeader>
-                  <div className="flex flex-col xs:flex-row justify-between items-start xs:items-center w-full gap-2 xs:gap-0">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center w-full gap-2 sm:gap-0">
                     <div className="min-w-0">
                       <CardTitle className="text-white text-lg truncate max-w-[180px] sm:max-w-none">{trip.name}</CardTitle>
                       <CardDescription className="text-gray-300">
                         {trip.participants.length} participants
                       </CardDescription>
                     </div>
-                    <div className="flex gap-1 flex-wrap min-w-0 mt-2 xs:mt-0">
+                    <div className="flex gap-1 flex-wrap min-w-0 mt-2 sm:mt-0">
                       <Button
                         variant="netflix-secondary"
                         size="sm"
@@ -426,24 +426,44 @@ const Trips = () => {
                 if (!trip) return null;
                 return (
                   <Card key={trip.id} className="netflix-card-hover w-full max-w-full sm:max-w-none mx-auto">
-              <CardHeader>
+                    <CardHeader>
                       <CardTitle className="text-white text-lg truncate max-w-[180px] sm:max-w-none">{trip.name}</CardTitle>
-              </CardHeader>
+                    </CardHeader>
                     <CardContent className="space-y-3">
                       <div className="flex items-center gap-2 text-gray-300">
                         <span className="text-sm">{trip.participants.length} participants</span>
                       </div>
-                  <Button
+                      <Button
                         onClick={() => navigate(`/trips/shared/${trip.id}`)}
                         variant="destructive"
                         className="w-full mt-4"
                       >
                         <span className="truncate">View as Viewer</span>
-                  </Button>
-              </CardContent>
-            </Card>
+                      </Button>
+                    </CardContent>
+                  </Card>
                 );
               })}
+            </div>
+          </div>
+        )}
+
+        {/* Delete Trip Confirmation Dialog */}
+        {showDeleteDialog && tripToDelete && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+            <div className="bg-[#141414] rounded-lg shadow-lg p-6 max-w-sm w-full border border-red-600">
+              <h2 className="text-lg font-bold mb-4 text-white">Delete Trip</h2>
+              <p className="mb-6 text-white">
+                Are you sure you want to delete the trip <span className="font-semibold text-white">{tripToDelete.name}</span>? This action cannot be undone.
+              </p>
+              <div className="flex justify-end gap-2">
+                <Button variant="outline" onClick={cancelDeleteTrip} className="border-red-600 text-red-600 hover:bg-red-600/10">
+                  Cancel
+                </Button>
+                <Button variant="destructive" onClick={confirmDeleteTrip} disabled={deletingTripId === tripToDelete.id} className="bg-red-600 text-white hover:bg-red-700">
+                  {deletingTripId === tripToDelete.id ? "Deleting..." : "Delete"}
+                </Button>
+              </div>
             </div>
           </div>
         )}

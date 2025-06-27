@@ -11,30 +11,25 @@ const Index = () => {
     <div className="min-h-screen netflix-gradient">
       {/* Header */}
       <header className="w-full bg-transparent">
-        <div className="responsive-container py-4 flex justify-between items-center w-full">
-          {/* Left side - Menu icon space (hidden on desktop) */}
-          <div className="flex-shrink-0 w-12 lg:hidden"></div>
-          
-          {/* Right side - App title and auth buttons */}
-          <div className="flex items-center gap-3 flex-shrink-0">
-            <div className="text-white font-bold text-lg md:text-xl lg:text-2xl flex-shrink-0 text-right">
-              Shared Expense Hive
-            </div>
-            {!user && (
-              <nav className="flex items-center gap-2 md:gap-3 flex-shrink-0">
-                <Link to="/signin">
-                  <Button variant="netflix-secondary" size="sm" className="min-h-[44px] min-w-[44px] text-sm md:text-base" aria-label="Sign In">
-                    Sign In
-                  </Button>
-                </Link>
-                <Link to="/signup">
-                  <Button variant="netflix" size="sm" className="min-h-[44px] min-w-[44px] text-sm md:text-base" aria-label="Sign Up">
-                    Sign Up
-                  </Button>
-                </Link>
-              </nav>
-            )}
+        <div className="responsive-container py-4 flex items-center w-full px-4 justify-end lg:justify-between">
+          <div className="shared-expense-hive-title text-white font-bold text-lg md:text-xl lg:text-2xl flex-shrink-0 text-right ml-auto lg:ml-0">
+            Shared Expense Hive
           </div>
+          {/* Auth buttons on the right */}
+          {!user && (
+            <nav className="flex items-center gap-2 md:gap-3 flex-shrink-0 justify-end">
+              <Link to="/signin">
+                <Button variant="netflix-secondary" size="sm" className="min-h-[44px] min-w-[44px] text-sm md:text-base" aria-label="Sign In">
+                  Sign In
+                </Button>
+              </Link>
+              <Link to="/signup">
+                <Button variant="netflix" size="sm" className="min-h-[44px] min-w-[44px] text-sm md:text-base" aria-label="Sign Up">
+                  Sign Up
+                </Button>
+              </Link>
+            </nav>
+          )}
         </div>
       </header>
 

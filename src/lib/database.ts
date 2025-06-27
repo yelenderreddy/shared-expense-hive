@@ -239,4 +239,29 @@ export const getViewedTripsByUser = async (userId: string) => {
     .eq('user_id', userId)
     .order('viewed_at', { ascending: false });
   return { data, error };
+};
+
+// Delete all user data (trips, expenses, payments, trip_viewers)
+export const deleteAllUserData = async (userId: string) => {
+  try {
+    // Get all trips for the user
+    const { data: trips, error: tripsError } = await getTripsByUser(userId);
+    if (tripsError) return { error: tripsError };
+
+    // Delete all expenses and payments for each trip
+    for (const trip of trips || []) {
+      await deleteTrip(trip.id);
+    }
+
+    // Delete all trip_viewers entries for this user
+    const { error: viewersError } = await supabase
+      .from('trip_viewers')
+      .delete()
+      .eq('user_id', userId);
+    if (viewersError) return { error: viewersError };
+
+    return { error: null };
+  } catch (error) {
+    return { error };
+  }
 }; 

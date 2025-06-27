@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import { User } from '@supabase/supabase-js'
 import { supabase, onAuthStateChange } from '@/lib/supabase'
+import { deleteAllUserData } from '@/lib/database'
 
 interface AuthContextType {
   user: User | null
@@ -9,6 +10,7 @@ interface AuthContextType {
   signIn: (email: string, password: string) => Promise<{ data: any; error: any }>
   signOut: () => Promise<{ error: any }>
   updateProfile: (profile: { name: string; mobile: string }) => Promise<{ error: any }>
+  deleteAccount: () => Promise<{ error: any }>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -74,6 +76,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return { error };
   };
 
+  const deleteAccount = async () => {
+    if (!user) return { error: 'No user' };
+    // Delete all user data
+    const { error: dataError } = await deleteAllUserData(user.id);
+    if (dataError) return { error: dataError };
+    // Delete user from Supabase Auth (must be done via admin API or edge function in production, but for self-service, try client-side)
+    const { error: authError } = await supabase.auth.admin.deleteUser(user.id);
+    if (authError) return { error: authError };
+    return { error: null };
+  };
+
   const value = {
     user,
     loading,
@@ -81,6 +94,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     signIn,
     signOut,
     updateProfile,
+    deleteAccount,
   }
 
   return (
