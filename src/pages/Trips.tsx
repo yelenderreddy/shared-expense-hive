@@ -218,19 +218,19 @@ const Trips = () => {
                 <ArrowLeft className="h-5 w-5 flex-shrink-0" />
                 <span className="truncate">Back to Home</span>
               </span>
-            </Link>
+          </Link>
           </div>
         </div>
 
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 gap-4 sm:gap-2 flex-wrap">
           <h1 className="text-white text-2xl sm:text-3xl font-bold truncate">My Trips</h1>
           <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto flex-wrap">
-            <Button
-              onClick={() => setShowCreateForm(true)}
-              variant="netflix"
+          <Button
+            onClick={() => setShowCreateForm(true)}
+            variant="netflix"
               className="flex items-center gap-2 w-full sm:w-auto min-w-0"
-            >
-              <Plus className="h-4 w-4" />
+          >
+            <Plus className="h-4 w-4" />
               <span className="truncate">New Trip</span>
             </Button>
             <Button
@@ -239,7 +239,7 @@ const Trips = () => {
               className="flex items-center gap-2 w-full sm:w-auto min-w-0"
             >
               <span className="truncate">Join Trip by Link</span>
-            </Button>
+          </Button>
           </div>
         </div>
 
@@ -426,22 +426,22 @@ const Trips = () => {
                 if (!trip) return null;
                 return (
                   <Card key={trip.id} className="netflix-card-hover w-full max-w-full sm:max-w-none mx-auto">
-                    <CardHeader>
+              <CardHeader>
                       <CardTitle className="text-white text-lg truncate max-w-[180px] sm:max-w-none">{trip.name}</CardTitle>
-                    </CardHeader>
+              </CardHeader>
                     <CardContent className="space-y-3">
                       <div className="flex items-center gap-2 text-gray-300">
                         <span className="text-sm">{trip.participants.length} participants</span>
                       </div>
-                      <Button
+                  <Button
                         onClick={() => navigate(`/trips/shared/${trip.id}`)}
                         variant="destructive"
                         className="w-full mt-4"
                       >
                         <span className="truncate">View as Viewer</span>
-                      </Button>
-                    </CardContent>
-                  </Card>
+                  </Button>
+              </CardContent>
+            </Card>
                 );
               })}
             </div>
@@ -452,4 +452,4 @@ const Trips = () => {
   );
 };
 
-export default Trips;
+export default Trips; 
