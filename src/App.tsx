@@ -47,7 +47,7 @@ function AppLayout() {
     return (
       <button
         type="button"
-        className="lg:hidden fixed top-3 left-3 z-[9999] p-2 bg-red-600 text-white border-4 border-yellow-400 rounded-full shadow-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+        className="lg:hidden fixed top-3 left-3 z-[9999] p-2 text-white rounded-full shadow-lg focus:outline-none focus:ring-2 focus:ring-red-500"
         aria-label="Open menu"
         style={{ display: isMobile ? 'block' : 'none', pointerEvents: 'auto' }}
         onClick={() => {

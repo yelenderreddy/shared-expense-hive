@@ -53,7 +53,7 @@ const SignIn = () => {
           title: "Success!",
           description: "Signed in successfully",
         });
-        navigate("/dashboard");
+        navigate("/");
       }
     } catch (error) {
       toast({

@@ -351,7 +351,7 @@ const Trips = () => {
             </CardContent>
           </Card>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6 w-full">
             {trips.map((trip) => (
               <Card key={trip.id} className="w-full overflow-hidden">
                 <CardHeader>
@@ -420,7 +420,7 @@ const Trips = () => {
         {viewedTrips.length > 0 && (
           <div className="mt-12">
             <h2 className="text-white text-2xl font-bold mb-4">Trips I Viewed</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
               {viewedTrips.map((v) => {
                 const trip = v.trip;
                 if (!trip) return null;

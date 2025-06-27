@@ -44,7 +44,7 @@ const Dashboard = () => {
   useEffect(() => {
     const storedTripData = localStorage.getItem("tripFundData");
     if (!storedTripData) {
-      navigate("/add-members");
+      navigate("/");
       return;
     }
     

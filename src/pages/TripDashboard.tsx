@@ -397,7 +397,7 @@ const TripDashboard = ({ isSharedView = false }: TripDashboardProps) => {
       <div className="sticky top-0 z-50 netflix-glass border-b border-gray-600">
         <div className="responsive-container py-4">
           <div className="flex flex-col sm:flex-row items-center justify-between mb-4 gap-2">
-            <Link to="/trips" className="text-white hover:text-red-400 flex items-center gap-2 transition-colors text-base sm:text-lg">
+            <Link to="/trips" className="text-white hover:text-red-400 flex items-center gap-2 transition-colors text-base sm:text-lg ml-8 md:ml-4">
               <ArrowLeft className="h-4 w-4" />
               Back to Trips
             </Link>

@@ -1,59 +1,40 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, Calculator, CreditCard, CheckCircle, LogOut, User, MapPin } from "lucide-react";
+import { Users, Calculator, CreditCard, CheckCircle, MapPin } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 
 const Index = () => {
-  const { user, signOut } = useAuth();
-
-  const handleSignOut = async () => {
-    try {
-      await signOut();
-    } catch (error) {
-      console.error("Error signing out:", error);
-    }
-  };
+  const { user } = useAuth();
 
   return (
     <div className="min-h-screen netflix-gradient">
-      {/* Header with Auth */}
+      {/* Header */}
       <header className="w-full bg-transparent">
-        <div className="responsive-container py-4 flex flex-col xs:flex-row items-center justify-between gap-3 xs:gap-0">
-          <div className="text-white font-bold text-xl flex-shrink-0">Shared Expense Hive</div>
-          <nav className="w-full xs:w-auto flex flex-col xs:flex-row items-center gap-2 xs:gap-4 mt-2 xs:mt-0">
-            {user ? (
-              <>
-                <div className="flex items-center gap-2 text-white w-full xs:w-auto justify-between xs:justify-end">
-                  <User className="h-5 w-5" />
-                  <span className="text-sm break-all">{user.email}</span>
-                  <Button
-                    variant="netflix-secondary"
-                    size="sm"
-                    onClick={handleSignOut}
-                    className="flex items-center gap-2 min-h-[44px] min-w-[44px] w-full xs:w-auto"
-                    aria-label="Sign Out"
-                  >
-                    <LogOut className="h-4 w-4" />
-                    <span className="hidden xs:inline">Sign Out</span>
-                  </Button>
-                </div>
-              </>
-            ) : (
-              <div className="flex flex-col xs:flex-row items-center gap-2 xs:gap-3 w-full xs:w-auto">
-                <Link to="/signin" className="w-full xs:w-auto">
-                  <Button variant="netflix-secondary" size="sm" className="min-h-[44px] min-w-[44px] w-full xs:w-auto" aria-label="Sign In">
+        <div className="responsive-container py-4 flex justify-between items-center w-full">
+          {/* Left side - Menu icon space (hidden on desktop) */}
+          <div className="flex-shrink-0 w-12 lg:hidden"></div>
+          
+          {/* Right side - App title and auth buttons */}
+          <div className="flex items-center gap-3 flex-shrink-0">
+            <div className="text-white font-bold text-lg md:text-xl lg:text-2xl flex-shrink-0 text-right">
+              Shared Expense Hive
+            </div>
+            {!user && (
+              <nav className="flex items-center gap-2 md:gap-3 flex-shrink-0">
+                <Link to="/signin">
+                  <Button variant="netflix-secondary" size="sm" className="min-h-[44px] min-w-[44px] text-sm md:text-base" aria-label="Sign In">
                     Sign In
                   </Button>
                 </Link>
-                <Link to="/signup" className="w-full xs:w-auto">
-                  <Button variant="netflix" size="sm" className="min-h-[44px] min-w-[44px] w-full xs:w-auto" aria-label="Sign Up">
+                <Link to="/signup">
+                  <Button variant="netflix" size="sm" className="min-h-[44px] min-w-[44px] text-sm md:text-base" aria-label="Sign Up">
                     Sign Up
                   </Button>
                 </Link>
-              </div>
+              </nav>
             )}
-          </nav>
+          </div>
         </div>
       </header>
 

@@ -194,7 +194,7 @@ const Sidebar = React.forwardRef<
     },
     ref
   ) => {
-    const { isMobile, openMobile, state } = useSidebar();
+    const { isMobile, openMobile, setOpenMobile, state } = useSidebar();
 
     if (collapsible === "none") {
       return (
@@ -211,28 +211,41 @@ const Sidebar = React.forwardRef<
       )
     }
 
-    // On mobile, always show the menu icon, and toggle only the content
+    // --- MOBILE SIDEBAR ---
     if (isMobile) {
       if (!openMobile) return null;
+      // Responsive width classes
+      const sidebarClasses = cn(
+        `fixed top-0 left-0 h-full bg-white shadow-lg transform transition-transform duration-300 ease-in-out z-50
+        w-[280px] max-w-[85vw]
+        sm:w-[300px] sm:max-w-[75vw]
+        md:w-[320px] md:max-w-[50vw]
+        select-none overflow-y-auto scrollbar-hide
+        [&_button]:min-h-[44px] [&_a]:min-h-[44px] [&_li]:py-3 [&_nav]:space-y-2
+        flex flex-col`,
+        openMobile ? 'translate-x-0' : '-translate-x-full',
+        className
+      );
       return (
-        <div className="fixed top-0 left-0 w-full z-50 md:hidden pointer-events-none">
-          <div className="w-full max-w-[90vw] bg-sidebar p-3 md:p-4 text-sidebar-foreground shadow-lg mt-12 rounded-b-xl transition-all duration-200 pointer-events-auto relative">
-            <button
-              className="absolute top-4 right-4 z-50 bg-red-600 text-white rounded-full p-2"
-              onClick={() => setOpenMobile(false)}
-              aria-label="Close sidebar"
-            >
-              ✕
+        <div className="fixed inset-0 z-50 lg:hidden">
+          {/* Backdrop */}
+          <div className="fixed inset-0 bg-black bg-opacity-50 z-40" onClick={() => setOpenMobile(false)} />
+          {/* Sidebar */}
+          <aside className={sidebarClasses} style={{width: '280px', maxWidth: '85vw'}}>
+            {/* Close button */}
+            <div className="absolute top-4 right-4 lg:hidden">
+              <button onClick={() => setOpenMobile(false)} className="p-2 hover:bg-gray-100 rounded">
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
             </button>
-            <div className="flex h-full w-full flex-col">
-              {children}
             </div>
-          </div>
+            {/* Sidebar content (identical to desktop) */}
+            <CustomSidebarContent />
+          </aside>
         </div>
       );
     }
 
-    // On desktop, always show the menu icon, and toggle only the content
+    // --- DESKTOP SIDEBAR ---
     return (
       <div className="fixed top-0 left-0 h-full z-40 hidden md:block pointer-events-none">
         <div className="absolute top-3 left-3 pointer-events-auto">
@@ -241,7 +254,7 @@ const Sidebar = React.forwardRef<
         {state === "expanded" && (
           <div className="h-full w-[16rem] bg-sidebar text-sidebar-foreground shadow-lg mt-12 rounded-r-xl transition-all duration-200 pointer-events-auto">
             <div className="flex h-full w-full flex-col">
-            {children}
+              <CustomSidebarContent />
           </div>
         </div>
         )}
