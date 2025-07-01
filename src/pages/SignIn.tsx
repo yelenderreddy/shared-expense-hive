@@ -93,15 +93,15 @@ const SignIn = () => {
                   <Label htmlFor="email" className="text-white font-medium text-sm sm:text-base">
                     Email Address
                   </Label>
-                  <div className="relative mt-2">
-                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                  <div className="input-container relative mt-2">
+                    <Mail className="input-icon absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5 z-10" />
                     <Input
                       id="email"
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="Enter your email"
-                      className="pl-10 bg-gray-800 border-gray-600 text-white placeholder-gray-400 text-base h-12 rounded-md focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                      className="input-field pl-12 md:pl-12 sm:pl-10 bg-gray-800 border-gray-600 text-white placeholder-gray-400 text-base h-12 rounded-md focus:ring-2 focus:ring-red-500 focus:border-transparent"
                       required
                     />
                   </div>
@@ -111,21 +111,23 @@ const SignIn = () => {
                   <Label htmlFor="password" className="text-white font-medium text-sm sm:text-base">
                     Password
                   </Label>
-                  <div className="relative mt-2">
-                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                  <div className="input-container relative mt-2">
+                    <Lock className="input-icon absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5 z-10" />
                     <Input
                       id="password"
                       type={showPassword ? "text" : "password"}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="Enter your password"
-                      className="pl-10 pr-10 bg-gray-800 border-gray-600 text-white placeholder-gray-400 text-base h-12 rounded-md focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                      className="input-field pl-12 md:pl-12 sm:pl-10 pr-10 bg-gray-800 border-gray-600 text-white placeholder-gray-400 text-base h-12 rounded-md focus:ring-2 focus:ring-red-500 focus:border-transparent"
                       required
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors z-20"
+                      tabIndex={-1}
+                      aria-label="Toggle password visibility"
                     >
                       {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                     </button>
@@ -155,6 +157,15 @@ const SignIn = () => {
           </Card>
         </div>
       </div>
+      <style jsx global>{`
+      .input-container { position: relative; }
+      .input-icon { left: 12px; top: 50%; transform: translateY(-50%); z-index: 10; }
+      .input-field { padding-left: 48px; }
+      @media (max-width: 640px) {
+        .input-field { padding-left: 40px; }
+        .input-icon { left: 10px; }
+      }
+      `}</style>
     </div>
   );
 };
