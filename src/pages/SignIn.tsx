@@ -157,15 +157,6 @@ const SignIn = () => {
           </Card>
         </div>
       </div>
-      <style jsx global>{`
-      .input-container { position: relative; }
-      .input-icon { left: 12px; top: 50%; transform: translateY(-50%); z-index: 10; }
-      .input-field { padding-left: 48px; }
-      @media (max-width: 640px) {
-        .input-field { padding-left: 40px; }
-        .input-icon { left: 10px; }
-      }
-      `}</style>
     </div>
   );
 };
