@@ -743,6 +743,7 @@ SidebarMenuSubButton.displayName = "SidebarMenuSubButton"
 const CustomSidebarContent = () => {
   const { user, signOut, updateProfile } = useAuth();
   const { state } = useSidebar();
+  const navigate = useNavigate();
   const [showProfileDialog, setShowProfileDialog] = React.useState(false);
   const [profile, setProfile] = React.useState({
     name: user?.user_metadata?.display_name || "",
